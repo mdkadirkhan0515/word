@@ -5,7 +5,7 @@
  * Library: react-native-sqlite-storage
  */
 
-import SQLite from "react-native-sqlite-storage";
+import SQLite from 'react-native-sqlite-storage';
 type SQLiteDatabase = any;
 type Transaction = any;
 type ResultSet = any;
@@ -13,9 +13,9 @@ type ResultSet = any;
 // Enable Promise
 SQLite.enablePromise(true);
 
-const DATABASE_NAME = "myapp_offline.db";
-const DATABASE_VERSION = "1.0";
-const DATABASE_DISPLAY_NAME = "MyApp Offline DB";
+const DATABASE_NAME = 'myapp_offline.db';
+const DATABASE_VERSION = '1.0';
+const DATABASE_DISPLAY_NAME = 'MyApp Offline DB';
 const DATABASE_SIZE = 200000; // 200KB initial
 
 class SQLiteManagerSingleton {
@@ -48,13 +48,13 @@ class SQLiteManagerSingleton {
 
     this.initPromise = new Promise(async (resolve, reject) => {
       try {
-        console.log("[SQLiteManager] Initializing DB...");
+        console.log('[SQLiteManager] Initializing DB...');
         const database = await SQLite.openDatabase({
           name: DATABASE_NAME,
           version: DATABASE_VERSION,
           displayName: DATABASE_DISPLAY_NAME,
           size: DATABASE_SIZE,
-          createFromLocation: "~myapp_offline.db", // Pre-populated if needed
+          createFromLocation: '~myapp_offline.db', // Pre-populated if needed
         });
 
         this.db = database;
@@ -62,10 +62,10 @@ class SQLiteManagerSingleton {
         await this.enableForeignKeys(database);
 
         this.isInitialized = true;
-        console.log("[SQLiteManager] DB Initialized Successfully");
+        console.log('[SQLiteManager] DB Initialized Successfully');
         resolve(database);
       } catch (error) {
-        console.error("[SQLiteManager] Init Failed:", error);
+        console.error('[SQLiteManager] Init Failed:', error);
         reject(error);
       } finally {
         this.initPromise = null;
@@ -76,8 +76,8 @@ class SQLiteManagerSingleton {
   }
 
   private async enableForeignKeys(db: SQLiteDatabase): Promise<void> {
-    await db.executeSql("PRAGMA foreign_keys = ON;");
-    await db.executeSql("PRAGMA journal_mode = WAL;"); // Better concurrency
+    await db.executeSql('PRAGMA foreign_keys = ON;');
+    await db.executeSql('PRAGMA journal_mode = WAL;'); // Better concurrency
   }
 
   /**
@@ -127,17 +127,74 @@ class SQLiteManagerSingleton {
       );`,
 
       // Indexes for Performance (Batch Query Optimization)
-      "CREATE INDEX IF NOT EXISTS idx_word_chapter ON WordTable(chapter_id);",
-      "CREATE INDEX IF NOT EXISTS idx_word_view ON WordTable(view_id);",
-      "CREATE INDEX IF NOT EXISTS idx_word_display ON WordTable(display_word_id);",
+      `CREATE INDEX IF NOT EXISTS idx_word_chapter ON WordTable(chapter_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_word_view ON WordTable(view_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_word_display ON WordTable(display_word_id);`,
     ];
 
     for (const query of queries) {
       await db.executeSql(query);
     }
 
-    console.log("[SQLiteManager] Tables Created / Verified");
+    console.log('[SQLiteManager] Tables Created / Verified');
+
+    // Seed default data if empty - Fix for blank splash
+    await this.seedDefaultDataIfNeeded(db);
   }
+
+  /**
+   * Seed Default Data - Offline First Default Content
+   * If ChapterTable is empty, insert 3 default chapters + sample words
+   * This prevents HomeScreen empty and App stuck on splash
+   */
+  private async seedDefaultDataIfNeeded(db: SQLiteDatabase): Promise<void> {
+    try {
+      const [result] = await db.executeSql('SELECT COUNT(*) as count FROM ChapterTable;');
+      const count = result.rows.item(0).count as number;
+
+      if (count === 0) {
+        console.log('[SQLiteManager] Seeding default chapters...');
+
+        // Default Chapters - শব্দ App
+        const defaultChapters = [
+          { chapter_id: 1, chapter_name: 'সহজ শব্দ', total_words: 20, unlocked_id: 1, target_percentage: 50 },
+          { chapter_id: 2, chapter_name: 'মাঝারি শব্দ', total_words: 20, unlocked_id: 0, target_percentage: 60 },
+          { chapter_id: 3, chapter_name: 'কঠিন শব্দ', total_words: 20, unlocked_id: 0, target_percentage: 80 },
+        ];
+
+        for (const ch of defaultChapters) {
+          await db.executeSql(
+            'INSERT OR IGNORE INTO ChapterTable (chapter_id, chapter_name, total_words, completed_words, unlocked_id, target_percentage) VALUES (?, ?, ?, 0, ?, ?);',
+            [ch.chapter_id, ch.chapter_name, ch.total_words, ch.unlocked_id, ch.target_percentage]
+          );
+        }
+
+        // Sample Words for Chapter 1 (20 words)
+        const sampleWords = [
+          'অভিজ্ঞতা', 'অর্জন', 'অনুভূতি', 'আলোচনা', 'উন্নতি',
+          'কল্পনা', 'জীবন', 'চিন্তা', 'দক্ষতা', 'পরিশ্রম',
+          'প্রচেষ্টা', 'বন্ধুত্ব', 'ভালোবাসা', 'মনোযোগ', 'যাত্রা',
+          'সাহস', 'স্বপ্ন', 'সফলতা', 'সময়', 'শিক্ষা'
+        ];
+
+        for (let i = 0; i < sampleWords.length; i++) {
+          const word_id = 101 + i;
+          await db.executeSql(
+            'INSERT OR IGNORE INTO WordTable (word_id, display_word_id, chapter_id, chapter_name, content, view_id) VALUES (?, ?, ?, ?, ?, 0);',
+            [word_id, word_id, 1, 'সহজ শব্দ', JSON.stringify({ word: sampleWords[i], meaning: `অর্থ ${i+1}`, example: `উদাহরণ ${sampleWords[i]}` })]
+          );
+        }
+
+        // DailyBank initial row
+        await db.executeSql('INSERT OR IGNORE INTO DailyBank (id, total_balance, today_earned, last_updated) VALUES (1, 0, 0, CURRENT_DATE);');
+
+        console.log('[SQLiteManager] Default data seeded - 3 chapters, 20 words');
+      }
+    } catch (e) {
+      console.error('[SQLiteManager] Seed failed:', e);
+    }
+  }
+
 
   /**
    * Get DB Instance
@@ -166,9 +223,7 @@ class SQLiteManagerSingleton {
   /**
    * Transaction Wrapper - For Batch Operations
    */
-  async transaction(
-    callback: (tx: Transaction) => Promise<void> | void
-  ): Promise<void> {
+  async transaction(callback: (tx: Transaction) => Promise<void> | void): Promise<void> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
       db.transaction(
@@ -176,12 +231,12 @@ class SQLiteManagerSingleton {
           try {
             await callback(tx);
           } catch (error) {
-            console.error("[SQLiteManager] Transaction Callback Error:", error);
+            console.error('[SQLiteManager] Transaction Callback Error:', error);
             throw error;
           }
         },
         (error: any) => {
-          console.error("[SQLiteManager] Transaction Failed:", error);
+          console.error('[SQLiteManager] Transaction Failed:', error);
           reject(error);
         },
         () => {
@@ -199,7 +254,7 @@ class SQLiteManagerSingleton {
       await this.db.close();
       this.db = null;
       this.isInitialized = false;
-      console.log("[SQLiteManager] DB Closed");
+      console.log('[SQLiteManager] DB Closed');
     }
   }
 
@@ -208,12 +263,13 @@ class SQLiteManagerSingleton {
    */
   async clearAll(): Promise<void> {
     const db = await this.getDB();
-    await db.executeSql("DELETE FROM WordTable;");
-    await db.executeSql("DELETE FROM ChapterTable;");
-    await db.executeSql("DELETE FROM DailyBank;");
-    console.log("[SQLiteManager] All Tables Cleared");
+    await db.executeSql('DELETE FROM WordTable;');
+    await db.executeSql('DELETE FROM ChapterTable;');
+    await db.executeSql('DELETE FROM DailyBank;');
+    console.log('[SQLiteManager] All Tables Cleared');
   }
 }
 
 export const SQLiteManager = SQLiteManagerSingleton.getInstance();
 export default SQLiteManager;
+

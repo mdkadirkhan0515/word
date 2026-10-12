@@ -54,21 +54,45 @@ class TTSControllerSingleton {
     if (this.isInitialized) return;
 
     try {
-      await Tts.getInitStatus();
-      await Tts.setDefaultLanguage('bn-BD'); // Dynamic via Settings, fallback bn-BD
-      await Tts.setDefaultRate(0.5); // Controlled by Slider
-      await Tts.setDefaultPitch(1.0);
+      // Timeout wrapper for getInitStatus - some devices hang
+      const initStatusPromise = Tts.getInitStatus().catch((e: any) => {
+        console.log('[TTSController] getInitStatus failed, using default:', e);
+        return null;
+      });
 
-      // Listeners for State Tracking
-      Tts.addEventListener('tts-start', this.onTtsStart);
-      Tts.addEventListener('tts-finish', this.onTtsFinish);
-      Tts.addEventListener('tts-cancel', this.onTtsCancel);
-      (Tts as any).addEventListener('tts-progress', this.onTtsProgress as any);
+      await Promise.race([
+        initStatusPromise,
+        new Promise(resolve => setTimeout(() => {
+          console.log('[TTSController] getInitStatus timeout, continuing');
+          resolve(null);
+        }, 1500))
+      ]);
+
+      try {
+        await Tts.setDefaultLanguage('bn-BD');
+      } catch {}
+      try {
+        await Tts.setDefaultRate(0.5);
+      } catch {}
+      try {
+        await Tts.setDefaultPitch(1.0);
+      } catch {}
+
+      // Listeners for State Tracking - safe
+      try {
+        Tts.addEventListener('tts-start', this.onTtsStart);
+        Tts.addEventListener('tts-finish', this.onTtsFinish);
+        Tts.addEventListener('tts-cancel', this.onTtsCancel);
+        (Tts as any).addEventListener('tts-progress', this.onTtsProgress as any);
+      } catch {}
 
       this.isInitialized = true;
       this.setState('STOPPED');
+      console.log('[TTSController] Initialized');
     } catch (error) {
-      console.error('[TTSController] Init Failed:', error);
+      console.error('[TTSController] Init Failed, but marking as initialized:', error);
+      this.isInitialized = true;
+      this.setState('STOPPED');
     }
   }
 

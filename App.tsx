@@ -1,3 +1,18 @@
+
+import { Alert } from 'react-native';
+
+// Global JS Error Handler
+if (__DEV__ || true) {
+  const defaultHandler = ErrorUtils.getGlobalHandler();
+  ErrorUtils.setGlobalHandler((error, isFatal) => {
+    Alert.alert("App Error Caught", error.toString());
+    if (defaultHandler) defaultHandler(error, isFatal);
+  });
+}
+
+
+
+
 import React, { useEffect, useState, useCallback } from "react";
 import {
   StatusBar,

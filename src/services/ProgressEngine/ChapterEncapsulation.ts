@@ -5,9 +5,9 @@
  * Purpose: Drawer instant read without recalculation
  */
 
-import { chapterBoxMMKV } from "../../storage/MMKVInstance";
-import PerModeCalculator, { PerModeResult } from "./PerModeCalculator";
-import WordProgressKey from "../../storage/keys/WordProgressKey";
+import {chapterBoxMMKV} from '../../storage/MMKVInstance';
+import PerModeCalculator, {PerModeResult} from './PerModeCalculator';
+import WordProgressKey from '../../storage/keys/WordProgressKey';
 
 export interface ChapterBox {
   chapter_id: number;
@@ -56,11 +56,11 @@ class ChapterEncapsulationSingleton {
     chapterBoxMMKV.set(this.getModeKey(chapter_id, 5), result.mode5);
     chapterBoxMMKV.set(
       this.getTotalKey(chapter_id),
-      result.totalProgressPercent
+      result.totalProgressPercent,
     );
     chapterBoxMMKV.set(
       this.getCompletedWordsKey(chapter_id),
-      result.totalCompletedWords
+      result.totalCompletedWords,
     );
     chapterBoxMMKV.set(this.getLastUpdatedKey(chapter_id), Date.now());
 
@@ -78,7 +78,7 @@ class ChapterEncapsulationSingleton {
     };
 
     console.log(
-      `[ChapterEncapsulation] Saved chapter_${chapter_id}: ${result.totalProgressPercent}%`
+      `[ChapterEncapsulation] Saved chapter_${chapter_id}: ${result.totalProgressPercent}%`,
     );
 
     return box;
@@ -126,7 +126,7 @@ class ChapterEncapsulationSingleton {
    * Save multiple chapters at once (Home Screen)
    */
   saveMultipleChapters(
-    chapterWordMap: Record<number, number[]>
+    chapterWordMap: Record<number, number[]>,
   ): Record<number, ChapterBox> {
     const result: Record<number, ChapterBox> = {};
     for (const [idStr, wordIds] of Object.entries(chapterWordMap)) {
@@ -160,7 +160,7 @@ class ChapterEncapsulationSingleton {
     console.log(`chapter_${chapter_id}_mode_4_progress = ${box.mode4}%`);
     console.log(`chapter_${chapter_id}_mode_5_progress = ${box.mode5}%`);
     console.log(
-      `chapter_${chapter_id}_total_progress = ${box.totalProgressPercent}%`
+      `chapter_${chapter_id}_total_progress = ${box.totalProgressPercent}%`,
     );
   }
 }

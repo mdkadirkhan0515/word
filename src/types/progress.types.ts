@@ -3,7 +3,7 @@
  * Progress Engine Types - Single Loop 20*5=100, Chapter Box Encapsulation, Two Guards
  */
 
-import { ModeNumber } from "../storage/keys/WordProgressKey";
+import {ModeNumber} from '../storage/keys/WordProgressKey';
 
 export type Mode = 1 | 2 | 3 | 4 | 5;
 export type ModeNumberType = Mode;
@@ -80,7 +80,7 @@ export interface ChapterUnlockStatus {
 
 export interface ExecutiveResult {
   isUnlocked: boolean;
-  unlockType: "natural" | "bank" | "locked";
+  unlockType: 'natural' | 'bank' | 'locked';
   completedPercent: number;
   targetPercent: number;
   needsBankCredit: number;

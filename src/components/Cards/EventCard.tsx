@@ -5,16 +5,16 @@
  * Example: [lightbulb-on-outline] অপরিচিতা #৩৫ [+1%]
  */
 
-import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React from 'react';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   Radius,
   Spacing,
   getCardContainerStyle,
   getInnerRadius,
-} from "../../theme/radius";
-import { Typography } from "../../theme/typography";
+} from '../../theme/radius';
+import {Typography} from '../../theme/typography';
 
 export interface EventCardProps {
   id: string;
@@ -50,37 +50,35 @@ export const EventCard: React.FC<EventCardProps> = ({
   return (
     <Pressable
       onPress={handlePress}
-      style={({ pressed }) => [
+      style={({pressed}) => [
         styles.container,
         getCardContainerStyle(false, {
-          surface: "#FFFFFF",
-          border: "#E7E0EC",
-          primary: "#6750A4",
+          surface: '#FFFFFF',
+          border: '#E7E0EC',
+          primary: '#6750A4',
         }),
         isCompleted && styles.completedContainer,
         isLocked && styles.lockedContainer,
         pressed && !isLocked && !isCompleted && styles.pressedContainer,
       ]}
       disabled={isLocked || isCompleted}
-      testID={`event-card-${id}`}
-    >
+      testID={`event-card-${id}`}>
       {/* Left: Vector Icon (No Emoji) */}
       <View
         style={[
           styles.iconContainer,
           {
             backgroundColor: isCompleted
-              ? "#E8F5E9"
+              ? '#E8F5E9'
               : isLocked
-              ? "#F3EDF7"
-              : "#E8DEF8",
+              ? '#F3EDF7'
+              : '#E8DEF8',
           },
-        ]}
-      >
+        ]}>
         <Icon
           name={iconName as any}
           size={20}
-          color={isCompleted ? "#2E7D32" : isLocked ? "#938F99" : "#6750A4"}
+          color={isCompleted ? '#2E7D32' : isLocked ? '#938F99' : '#6750A4'}
         />
       </View>
 
@@ -92,8 +90,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             isLocked && styles.lockedText,
             isCompleted && styles.completedText,
           ]}
-          numberOfLines={2}
-        >
+          numberOfLines={2}>
           {title}
         </Text>
         <Text style={styles.stageLabel}>
@@ -107,8 +104,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           styles.creditBadge,
           isCompleted && styles.creditCompleted,
           isLocked && styles.creditLocked,
-        ]}
-      >
+        ]}>
         {isLocked ? (
           <Icon name="lock-outline" size={14} color="#938F99" />
         ) : isCompleted ? (
@@ -118,8 +114,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             style={[
               styles.creditText,
               isCompleted && styles.creditTextCompleted,
-            ]}
-          >
+            ]}>
             +{creditPercent}%
           </Text>
         )}
@@ -130,37 +125,37 @@ export const EventCard: React.FC<EventCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: "#E7E0EC",
+    borderColor: '#E7E0EC',
     marginVertical: 6,
     marginHorizontal: 16,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   completedContainer: {
-    backgroundColor: "#E8F5E9",
-    borderColor: "#81C784",
+    backgroundColor: '#E8F5E9',
+    borderColor: '#81C784',
     opacity: 0.8,
   },
   lockedContainer: {
-    backgroundColor: "#F3EDF7",
-    borderColor: "#E7E0EC",
+    backgroundColor: '#F3EDF7',
+    borderColor: '#E7E0EC',
     opacity: 0.6,
   },
   pressedContainer: {
-    transform: [{ scale: 0.98 }],
-    backgroundColor: "#E8DEF8",
+    transform: [{scale: 0.98}],
+    backgroundColor: '#E8DEF8',
   },
   iconContainer: {
     width: 36,
     height: 36,
     borderRadius: 12, // Inner = Outer - Padding
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   middle: {
@@ -168,45 +163,45 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1B1F",
+    fontWeight: '600',
+    color: '#1C1B1F',
     lineHeight: 20,
   },
   stageLabel: {
     fontSize: 11,
-    color: "#49454F",
+    color: '#49454F',
     marginTop: 2,
   },
   lockedText: {
-    color: "#938F99",
+    color: '#938F99',
   },
   completedText: {
-    color: "#2E7D32",
-    textDecorationLine: "line-through",
+    color: '#2E7D32',
+    textDecorationLine: 'line-through',
   },
   creditBadge: {
     minWidth: 44,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#E8DEF8",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#E8DEF8',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 8,
     marginLeft: 8,
   },
   creditCompleted: {
-    backgroundColor: "#C8E6C9",
+    backgroundColor: '#C8E6C9',
   },
   creditLocked: {
-    backgroundColor: "#E7E0EC",
+    backgroundColor: '#E7E0EC',
   },
   creditText: {
     fontSize: 12,
-    fontWeight: "700",
-    color: "#6750A4",
+    fontWeight: '700',
+    color: '#6750A4',
   },
   creditTextCompleted: {
-    color: "#2E7D32",
+    color: '#2E7D32',
   },
 });
 

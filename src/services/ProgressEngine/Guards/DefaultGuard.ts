@@ -7,9 +7,9 @@
 
 import ChapterTable, {
   ChapterUnlockStatus,
-} from "../../../database/ChapterTable";
-import { eventsMMKV } from "../../../storage/MMKVInstance";
-import BankManager from "../../../storage/DailyBank/BankManager";
+} from '../../../database/ChapterTable';
+import {eventsMMKV} from '../../../storage/MMKVInstance';
+import BankManager from '../../../storage/DailyBank/BankManager';
 
 export interface GuardResult {
   passed: boolean;
@@ -59,7 +59,7 @@ class DefaultGuardSingleton {
     eventsMMKV.set(`chapter_${chapter_id}_completed_percent`, completedPercent);
 
     console.log(
-      `[DefaultGuard] Chapter ${chapter_id} 50% PASSED at ${completedPercent}% - Invisible Magic Triggered`
+      `[DefaultGuard] Chapter ${chapter_id} 50% PASSED at ${completedPercent}% - Invisible Magic Triggered`,
     );
   }
 
@@ -77,7 +77,7 @@ class DefaultGuardSingleton {
    * Get guard status for all chapters (Home Screen)
    */
   async checkAllChapters(
-    chapterIds: number[]
+    chapterIds: number[],
   ): Promise<Record<number, GuardResult>> {
     const result: Record<number, GuardResult> = {};
 

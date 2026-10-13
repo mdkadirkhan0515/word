@@ -6,15 +6,15 @@
  * Offline-First, MMKV + SQLite Dual Sync
  */
 
-import { dailyBankMMKV } from "../MMKVInstance";
-import SQLiteManager from "../../database/SQLiteManager";
+import {dailyBankMMKV} from '../MMKVInstance';
+import SQLiteManager from '../../database/SQLiteManager';
 
 export const BANK_KEYS = {
-  TOTAL_BALANCE: "daily_bank_total_balance", // e.g., 490%
-  TODAY_EARNED: "daily_bank_today_earned", // e.g., +20%
-  LAST_UPDATED: "daily_bank_last_updated",
-  LIFETIME_EARNED: "daily_bank_lifetime_earned",
-  LIFETIME_SPENT: "daily_bank_lifetime_spent",
+  TOTAL_BALANCE: 'daily_bank_total_balance', // e.g., 490%
+  TODAY_EARNED: 'daily_bank_today_earned', // e.g., +20%
+  LAST_UPDATED: 'daily_bank_last_updated',
+  LIFETIME_EARNED: 'daily_bank_lifetime_earned',
+  LIFETIME_SPENT: 'daily_bank_lifetime_spent',
 } as const;
 
 export interface BankBalance {
@@ -48,13 +48,13 @@ class BankManagerSingleton {
         todayEarned: 0,
         lifetimeEarned: 0,
         lifetimeSpent: 0,
-        lastUpdated: new Date().toISOString().split("T")[0],
+        lastUpdated: new Date().toISOString().split('T')[0],
       };
 
       this.saveToMMKV(initial);
       await this.saveToSQLite(initial);
 
-      console.log("[BankManager] Initialized with 0%");
+      console.log('[BankManager] Initialized with 0%');
       return initial;
     }
 
@@ -73,7 +73,7 @@ class BankManagerSingleton {
       dailyBankMMKV.getNumber(BANK_KEYS.LIFETIME_SPENT) || 0;
     const lastUpdated =
       dailyBankMMKV.getString(BANK_KEYS.LAST_UPDATED) ||
-      new Date().toISOString().split("T")[0];
+      new Date().toISOString().split('T')[0];
 
     return {
       totalBalance,
@@ -111,7 +111,7 @@ class BankManagerSingleton {
         balance.lastUpdated,
       ]);
     } catch (error) {
-      console.error("[BankManager] SQLite Save Failed:", error);
+      console.error('[BankManager] SQLite Save Failed:', error);
     }
   }
 
@@ -121,10 +121,10 @@ class BankManagerSingleton {
    */
   async addCredit(
     percent: number = 1,
-    source: string = "event_card"
+    source: string = 'event_card',
   ): Promise<BankBalance> {
     const current = this.getBalance();
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
 
     // Reset todayEarned if new day
     let todayEarned = current.todayEarned;
@@ -144,7 +144,7 @@ class BankManagerSingleton {
     await this.saveToSQLite(newBalance);
 
     console.log(
-      `[BankManager] +${percent}% from ${source} | Total: ${newBalance.totalBalance}% (Today: +${newBalance.todayEarned}%)`
+      `[BankManager] +${percent}% from ${source} | Total: ${newBalance.totalBalance}% (Today: +${newBalance.todayEarned}%)`,
     );
 
     return newBalance;
@@ -156,8 +156,8 @@ class BankManagerSingleton {
    */
   async deductCredit(
     percent: number,
-    reason: string = "chapter_unlock"
-  ): Promise<{ success: boolean; newBalance: BankBalance; message: string }> {
+    reason: string = 'chapter_unlock',
+  ): Promise<{success: boolean; newBalance: BankBalance; message: string}> {
     const current = this.getBalance();
 
     if (current.totalBalance < percent) {
@@ -180,7 +180,7 @@ class BankManagerSingleton {
     await this.saveToSQLite(newBalance);
 
     console.log(
-      `[BankManager] -${percent}% for ${reason} | Remaining: ${newBalance.totalBalance}%`
+      `[BankManager] -${percent}% for ${reason} | Remaining: ${newBalance.totalBalance}%`,
     );
 
     return {
@@ -196,7 +196,7 @@ class BankManagerSingleton {
    */
   async onEventStageCompleted(
     stage: 1 | 2 | 3 | 4,
-    cardsCompleted: number = 5
+    cardsCompleted: number = 5,
   ): Promise<BankBalance> {
     const credit = cardsCompleted * 1; // Each card +1%
     return this.addCredit(credit, `stage_${stage}_completed`);
@@ -207,7 +207,7 @@ class BankManagerSingleton {
    * Could be +20% as shown in UI
    */
   async addDailyBonus(bonusPercent: number = 20): Promise<BankBalance> {
-    return this.addCredit(bonusPercent, "daily_login_bonus");
+    return this.addCredit(bonusPercent, 'daily_login_bonus');
   }
 
   /**
@@ -221,7 +221,7 @@ class BankManagerSingleton {
   /**
    * Get Display Text for UI: "৪৯০% ক্রেডিট (আজকের অর্জন: +২০% | মোট উপলব্ধ: ৪৯০%)"
    */
-  getDisplayText(): { totalText: string; todayText: string; fullText: string } {
+  getDisplayText(): {totalText: string; todayText: string; fullText: string} {
     const balance = this.getBalance();
     return {
       totalText: `${balance.totalBalance}% ক্রেডিট`,
@@ -236,7 +236,7 @@ class BankManagerSingleton {
   async syncFromSQLite(): Promise<BankBalance> {
     try {
       const [result] = await SQLiteManager.executeSql(
-        "SELECT * FROM DailyBank ORDER BY id DESC LIMIT 1;"
+        'SELECT * FROM DailyBank ORDER BY id DESC LIMIT 1;',
       );
       if (result.rows.length > 0) {
         const row = result.rows.item(0);
@@ -247,13 +247,13 @@ class BankManagerSingleton {
             dailyBankMMKV.getNumber(BANK_KEYS.LIFETIME_EARNED) || 0,
           lifetimeSpent: dailyBankMMKV.getNumber(BANK_KEYS.LIFETIME_SPENT) || 0,
           lastUpdated:
-            row.last_updated || new Date().toISOString().split("T")[0],
+            row.last_updated || new Date().toISOString().split('T')[0],
         };
         this.saveToMMKV(balance);
         return balance;
       }
     } catch (error) {
-      console.error("[BankManager] Sync from SQLite failed:", error);
+      console.error('[BankManager] Sync from SQLite failed:', error);
     }
     return this.getBalance();
   }
@@ -267,7 +267,7 @@ class BankManagerSingleton {
       todayEarned: 0,
       lifetimeEarned: 0,
       lifetimeSpent: 0,
-      lastUpdated: new Date().toISOString().split("T")[0],
+      lastUpdated: new Date().toISOString().split('T')[0],
     };
     this.saveToMMKV(resetBalance);
     await this.saveToSQLite(resetBalance);

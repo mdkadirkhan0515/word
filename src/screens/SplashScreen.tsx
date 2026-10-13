@@ -4,21 +4,14 @@
  * Android Native Splash Style, Premium Minimalist
  */
 
-import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Animated,
-  StatusBar,
-} from "react-native";
+import React, {useEffect, useRef} from 'react';
+import {View, Text, Image, StyleSheet, Animated, StatusBar} from 'react-native';
 
 export interface SplashScreenProps {
   onFinish?: () => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({onFinish}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
@@ -46,12 +39,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           styles.logoContainer,
           {
             opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
+            transform: [{scale: scaleAnim}],
           },
-        ]}
-      >
+        ]}>
         <Image
-          source={require("../assets/images/splash_logo.png")}
+          source={require('../assets/images/splash_logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -73,20 +65,20 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logoContainer: {
     width: 240,
     height: 240,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
     borderRadius: 32,
     // Subtle shadow for premium feel
-    shadowColor: "#6750A4",
-    shadowOffset: { width: 0, height: 10 },
+    shadowColor: '#6750A4',
+    shadowOffset: {width: 0, height: 10},
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 5,
@@ -96,24 +88,24 @@ const styles = StyleSheet.create({
     height: 200,
   },
   footer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 60,
-    alignItems: "center",
+    alignItems: 'center',
   },
   appName: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#1C1B1F",
+    fontWeight: '700',
+    color: '#1C1B1F',
     letterSpacing: 0.5,
   },
   tagline: {
     fontSize: 12,
-    color: "#6750A4",
+    color: '#6750A4',
     marginTop: 4,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   dots: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 20,
     gap: 6,
   },
@@ -121,10 +113,10 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#E7E0EC",
+    backgroundColor: '#E7E0EC',
   },
   dotActive: {
-    backgroundColor: "#6750A4",
+    backgroundColor: '#6750A4',
     width: 18,
   },
 });

@@ -4,9 +4,9 @@
  * Handles: Empty Space Tap for m2/m5 = Pause/Resume, MMKV Resume Position
  */
 
-import TTSController, { TTSMode } from './TTSController';
-import TTSStateKey, { TTSResumePosition } from '../../storage/keys/TTSStateKey';
-import { ttsBrainMMKV } from '../../storage/MMKVInstance';
+import TTSController, {TTSMode} from './TTSController';
+import TTSStateKey, {TTSResumePosition} from '../../storage/keys/TTSStateKey';
+import {ttsBrainMMKV} from '../../storage/MMKVInstance';
 
 export interface PauseResumeState {
   isPaused: boolean;
@@ -20,7 +20,11 @@ class PauseResumeEngineSingleton {
    * Pause - Save current char position to MMKV
    * Called on Empty Space Tap (m2/m5) when playing
    */
-  async pause(currentWordId: number, currentCharIndex: number, mode: TTSMode): Promise<PauseResumeState> {
+  async pause(
+    currentWordId: number,
+    currentCharIndex: number,
+    mode: TTSMode,
+  ): Promise<PauseResumeState> {
     const position: TTSResumePosition = {
       word_id: currentWordId,
       char_index: currentCharIndex,
@@ -35,7 +39,9 @@ class PauseResumeEngineSingleton {
 
     await TTSController.pause(currentWordId, currentCharIndex);
 
-    console.log(`[PauseResumeEngine] Paused at word ${currentWordId}, char ${currentCharIndex}, mode ${mode}`);
+    console.log(
+      `[PauseResumeEngine] Paused at word ${currentWordId}, char ${currentCharIndex}, mode ${mode}`,
+    );
 
     return {
       isPaused: true,
@@ -62,7 +68,9 @@ class PauseResumeEngineSingleton {
 
     await TTSController.resume('', resumePosition.word_id);
 
-    console.log(`[PauseResumeEngine] Resumed from word ${resumePosition.word_id}, char ${resumePosition.char_index}`);
+    console.log(
+      `[PauseResumeEngine] Resumed from word ${resumePosition.word_id}, char ${resumePosition.char_index}`,
+    );
 
     return {
       isPaused: false,
@@ -76,7 +84,11 @@ class PauseResumeEngineSingleton {
    * Handle Empty Space Press for m2/m5
    * Logic: If PLAYING -> Pause, If PAUSED -> Resume
    */
-  async handleEmptySpacePress(currentWordId: number, currentCharIndex: number, mode: TTSMode): Promise<'paused' | 'resumed' | 'none'> {
+  async handleEmptySpacePress(
+    currentWordId: number,
+    currentCharIndex: number,
+    mode: TTSMode,
+  ): Promise<'paused' | 'resumed' | 'none'> {
     const currentState = TTSStateKey.getCurrentState();
 
     if (currentState === 'PLAYING') {
@@ -121,7 +133,9 @@ class PauseResumeEngineSingleton {
    */
   getPauseDuration(): number {
     const pausedAt = ttsBrainMMKV.getNumber('paused_at');
-    if (!pausedAt) return 0;
+    if (!pausedAt) {
+      return 0;
+    }
     return Date.now() - pausedAt;
   }
 
@@ -129,10 +143,9 @@ class PauseResumeEngineSingleton {
    * Save progress on every char for zero loss
    */
   saveProgress(wordId: number, charIndex: number): void {
-    TTSStateKey.setResumePosition({ word_id: wordId, char_index: charIndex });
+    TTSStateKey.setResumePosition({word_id: wordId, char_index: charIndex});
   }
 }
 
 export const PauseResumeEngine = new PauseResumeEngineSingleton();
 export default PauseResumeEngine;
-

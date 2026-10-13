@@ -4,8 +4,8 @@
  * Handles: Dynamic Target from 30-Day Algo, Bank Credit Logic, unlocked_id
  */
 
-import SQLiteManager from "./SQLiteManager";
-import WordTable from "./WordTable";
+import SQLiteManager from './SQLiteManager';
+import WordTable from './WordTable';
 
 export interface ChapterRow {
   chapter_id: number;
@@ -36,7 +36,7 @@ class ChapterTableManager {
    * Upsert Chapter (On Manifesto Download)
    */
   async upsertChapter(
-    chapter: Partial<ChapterRow> & { chapter_id: number; chapter_name: string }
+    chapter: Partial<ChapterRow> & {chapter_id: number; chapter_name: string},
   ): Promise<void> {
     const query = `
       INSERT OR REPLACE INTO ChapterTable
@@ -60,8 +60,8 @@ class ChapterTableManager {
   async syncTotalWords(chapter_id: number): Promise<void> {
     const total = await WordTable.getTotalCount(chapter_id);
     await SQLiteManager.executeSql(
-      "UPDATE ChapterTable SET total_words = ? WHERE chapter_id = ?;",
-      [total, chapter_id]
+      'UPDATE ChapterTable SET total_words = ? WHERE chapter_id = ?;',
+      [total, chapter_id],
     );
   }
 
@@ -71,18 +71,18 @@ class ChapterTableManager {
    */
   async setDynamicTarget(
     chapter_id: number,
-    targetPercentage: number
+    targetPercentage: number,
   ): Promise<void> {
     const safeTarget = Math.max(
       50,
-      Math.min(100, Math.round(targetPercentage))
+      Math.min(100, Math.round(targetPercentage)),
     );
     await SQLiteManager.executeSql(
-      "UPDATE ChapterTable SET target_percentage = ? WHERE chapter_id = ?;",
-      [safeTarget, chapter_id]
+      'UPDATE ChapterTable SET target_percentage = ? WHERE chapter_id = ?;',
+      [safeTarget, chapter_id],
     );
     console.log(
-      `[ChapterTable] Chapter ${chapter_id} target set to ${safeTarget}%`
+      `[ChapterTable] Chapter ${chapter_id} target set to ${safeTarget}%`,
     );
   }
 
@@ -91,8 +91,8 @@ class ChapterTableManager {
    */
   async getChapter(chapter_id: number): Promise<ChapterRow | null> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT * FROM ChapterTable WHERE chapter_id = ?;",
-      [chapter_id]
+      'SELECT * FROM ChapterTable WHERE chapter_id = ?;',
+      [chapter_id],
     );
     if (result.rows.length > 0) {
       return result.rows.item(0) as ChapterRow;
@@ -106,7 +106,7 @@ class ChapterTableManager {
    */
   async checkChapterUnlockStatus(
     chapter_id: number,
-    bankBalancePercent: number = 0
+    bankBalancePercent: number = 0,
   ): Promise<ChapterUnlockStatus> {
     const chapter = await this.getChapter(chapter_id);
     const progress = await WordTable.getChapterProgress(chapter_id);
@@ -153,8 +153,8 @@ class ChapterTableManager {
     // Sync completed_words
     if (chapter.completed_words !== progress.completed) {
       await SQLiteManager.executeSql(
-        "UPDATE ChapterTable SET completed_words = ? WHERE chapter_id = ?;",
-        [progress.completed, chapter_id]
+        'UPDATE ChapterTable SET completed_words = ? WHERE chapter_id = ?;',
+        [progress.completed, chapter_id],
       );
     }
 
@@ -180,11 +180,11 @@ class ChapterTableManager {
   async unlockChapter(chapter_id: number): Promise<boolean> {
     try {
       await SQLiteManager.executeSql(
-        "UPDATE ChapterTable SET unlocked_id = 1 WHERE chapter_id = ?;",
-        [chapter_id]
+        'UPDATE ChapterTable SET unlocked_id = 1 WHERE chapter_id = ?;',
+        [chapter_id],
       );
       console.log(
-        `[ChapterTable] Chapter ${chapter_id} UNLOCKED (unlocked_id=1)`
+        `[ChapterTable] Chapter ${chapter_id} UNLOCKED (unlocked_id=1)`,
       );
       return true;
     } catch (error) {
@@ -199,23 +199,23 @@ class ChapterTableManager {
    */
   async unlockViaBank(
     chapter_id: number,
-    bankCreditToDeduct: number
-  ): Promise<{ success: boolean; remainingNeeds: number }> {
+    bankCreditToDeduct: number,
+  ): Promise<{success: boolean; remainingNeeds: number}> {
     const status = await this.checkChapterUnlockStatus(
       chapter_id,
-      bankCreditToDeduct
+      bankCreditToDeduct,
     );
 
     if (!status.is50GuardPassed) {
-      console.log("[ChapterTable] Bank unlock denied: 50% Guard not passed");
-      return { success: false, remainingNeeds: status.needsBankCredit };
+      console.log('[ChapterTable] Bank unlock denied: 50% Guard not passed');
+      return {success: false, remainingNeeds: status.needsBankCredit};
     }
 
     if (!status.canUseBank) {
       console.log(
-        "[ChapterTable] Bank unlock denied: Insufficient bank balance"
+        '[ChapterTable] Bank unlock denied: Insufficient bank balance',
       );
-      return { success: false, remainingNeeds: status.needsBankCredit };
+      return {success: false, remainingNeeds: status.needsBankCredit};
     }
 
     // Deduct and unlock
@@ -231,7 +231,7 @@ class ChapterTableManager {
    */
   async getAllChaptersWithProgress(): Promise<ChapterUnlockStatus[]> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT * FROM ChapterTable ORDER BY chapter_id ASC;"
+      'SELECT * FROM ChapterTable ORDER BY chapter_id ASC;',
     );
     const statuses: ChapterUnlockStatus[] = [];
 
@@ -249,13 +249,13 @@ class ChapterTableManager {
    */
   async resetChapter(chapter_id: number): Promise<void> {
     await SQLiteManager.executeSql(
-      "UPDATE ChapterTable SET unlocked_id = 0, completed_words = 0 WHERE chapter_id = ?;",
-      [chapter_id]
+      'UPDATE ChapterTable SET unlocked_id = 0, completed_words = 0 WHERE chapter_id = ?;',
+      [chapter_id],
     );
     // Also reset all words view_id=0
     await SQLiteManager.executeSql(
-      "UPDATE WordTable SET view_id = 0 WHERE chapter_id = ?;",
-      [chapter_id]
+      'UPDATE WordTable SET view_id = 0 WHERE chapter_id = ?;',
+      [chapter_id],
     );
   }
 }

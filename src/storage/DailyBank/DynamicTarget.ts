@@ -5,19 +5,19 @@
  * Android Login Based, Production-Grade
  */
 
-import { dynamicTargetMMKV } from "../MMKVInstance";
+import {dynamicTargetMMKV} from '../MMKVInstance';
 
 export const DYNAMIC_TARGET_KEYS = {
-  ADVANCED_TARGET: "advanced_dynamic_chapter_target", // Final 50-100%
-  THIRTY_DAYS_ACTIVITY: "thirty_days_activity", // [1,0,1,1...]
-  DAILY_COMPLETED_COUNTS: "daily_completed_counts", // [5,12,0,8...]
-  CONSISTENCY_SCORE: "consistency_score",
-  MOMENTUM_FACTOR: "momentum_factor",
-  VOLATILITY_PENALTY: "volatility_penalty",
-  VOLUME_SCORE: "volume_score",
-  RAW_SCORE: "raw_composite_score",
-  LAST_CALCULATED: "last_calculated_at",
-  CALCULATED_HISTORY: "calculated_history", // Array of {date, target}
+  ADVANCED_TARGET: 'advanced_dynamic_chapter_target', // Final 50-100%
+  THIRTY_DAYS_ACTIVITY: 'thirty_days_activity', // [1,0,1,1...]
+  DAILY_COMPLETED_COUNTS: 'daily_completed_counts', // [5,12,0,8...]
+  CONSISTENCY_SCORE: 'consistency_score',
+  MOMENTUM_FACTOR: 'momentum_factor',
+  VOLATILITY_PENALTY: 'volatility_penalty',
+  VOLUME_SCORE: 'volume_score',
+  RAW_SCORE: 'raw_composite_score',
+  LAST_CALCULATED: 'last_calculated_at',
+  CALCULATED_HISTORY: 'calculated_history', // Array of {date, target}
 } as const;
 
 export interface ThirtyDaysMetrics {
@@ -43,11 +43,11 @@ class DynamicTargetEngine {
    */
   generateComplexDynamicTarget(
     thirtyDaysActivity: number[],
-    dailyCompletedCounts: number[]
+    dailyCompletedCounts: number[],
   ): number {
     if (!thirtyDaysActivity || thirtyDaysActivity.length < 30) {
       console.log(
-        "[DynamicTarget] Insufficient data (<30 days), returning baseline 50%"
+        '[DynamicTarget] Insufficient data (<30 days), returning baseline 50%',
       );
       const baseline = 50;
       dynamicTargetMMKV.set(DYNAMIC_TARGET_KEYS.ADVANCED_TARGET, baseline);
@@ -57,7 +57,7 @@ class DynamicTargetEngine {
     // 1. Consistency Score (30 days total present %)
     const totalActiveDays = thirtyDaysActivity.reduce(
       (acc, curr) => acc + curr,
-      0
+      0,
     );
     const consistencyRate = totalActiveDays / 30; // e.g., 0.8
 
@@ -73,7 +73,7 @@ class DynamicTargetEngine {
     // 3. Volatility Penalty (Max consecutive gap)
     let maxGap = 0;
     let currentGap = 0;
-    thirtyDaysActivity.forEach((status) => {
+    thirtyDaysActivity.forEach(status => {
       if (status === 0) {
         currentGap++;
         if (currentGap > maxGap) {
@@ -89,7 +89,7 @@ class DynamicTargetEngine {
     // 4. Volume/Velocity Weight (Avg daily deep study)
     const totalVolume = dailyCompletedCounts.reduce(
       (acc, curr) => acc + curr,
-      0
+      0,
     );
     const avgVolumePerDay = totalVolume / 30;
     const volumeScore = Math.min(1, avgVolumePerDay / 15); // Ideal 15 per day
@@ -114,7 +114,7 @@ class DynamicTargetEngine {
     // Medium/irregular stays at 50-70%
     const scaledFactor = Math.pow(rawScore, 1.5);
     let finalTargetPercentage = Math.round(
-      minTarget + scaledFactor * (maxTarget - minTarget)
+      minTarget + scaledFactor * (maxTarget - minTarget),
     );
 
     // Safety Boundary
@@ -139,14 +139,14 @@ class DynamicTargetEngine {
 
     console.log(
       `[DynamicTarget] Raw: ${rawScore.toFixed(
-        2
+        2,
       )} | Consistency: ${consistencyRate.toFixed(
-        2
+        2,
       )} | Momentum: ${momentum.toFixed(2)} | Penalty: ${penaltyFactor.toFixed(
-        2
+        2,
       )} | Volume: ${volumeScore.toFixed(
-        2
-      )} | Target: ${finalTargetPercentage}%`
+        2,
+      )} | Target: ${finalTargetPercentage}%`,
     );
 
     return finalTargetPercentage;
@@ -155,44 +155,44 @@ class DynamicTargetEngine {
   private saveMetrics(
     metrics: ThirtyDaysMetrics,
     activity: number[],
-    counts: number[]
+    counts: number[],
   ): void {
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.ADVANCED_TARGET,
-      metrics.finalTarget
+      metrics.finalTarget,
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.THIRTY_DAYS_ACTIVITY,
-      JSON.stringify(activity)
+      JSON.stringify(activity),
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.DAILY_COMPLETED_COUNTS,
-      JSON.stringify(counts)
+      JSON.stringify(counts),
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.CONSISTENCY_SCORE,
-      metrics.consistencyRate
+      metrics.consistencyRate,
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.MOMENTUM_FACTOR,
-      metrics.momentum
+      metrics.momentum,
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.VOLATILITY_PENALTY,
-      metrics.penaltyFactor
+      metrics.penaltyFactor,
     );
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.VOLUME_SCORE,
-      metrics.volumeScore
+      metrics.volumeScore,
     );
     dynamicTargetMMKV.set(DYNAMIC_TARGET_KEYS.RAW_SCORE, metrics.rawScore);
     dynamicTargetMMKV.set(DYNAMIC_TARGET_KEYS.LAST_CALCULATED, Date.now());
 
     // Save history
     const historyRaw = dynamicTargetMMKV.getString(
-      DYNAMIC_TARGET_KEYS.CALCULATED_HISTORY
+      DYNAMIC_TARGET_KEYS.CALCULATED_HISTORY,
     );
-    let history: Array<{ date: string; target: number; rawScore: number }> = [];
+    let history: Array<{date: string; target: number; rawScore: number}> = [];
     try {
       if (historyRaw) {
         history = JSON.parse(historyRaw);
@@ -200,7 +200,7 @@ class DynamicTargetEngine {
     } catch {}
 
     history.push({
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split('T')[0],
       target: metrics.finalTarget,
       rawScore: metrics.rawScore,
     });
@@ -212,7 +212,7 @@ class DynamicTargetEngine {
 
     dynamicTargetMMKV.set(
       DYNAMIC_TARGET_KEYS.CALCULATED_HISTORY,
-      JSON.stringify(history)
+      JSON.stringify(history),
     );
   }
 
@@ -230,7 +230,7 @@ class DynamicTargetEngine {
    */
   getMetrics(): ThirtyDaysMetrics | null {
     const target = dynamicTargetMMKV.getNumber(
-      DYNAMIC_TARGET_KEYS.ADVANCED_TARGET
+      DYNAMIC_TARGET_KEYS.ADVANCED_TARGET,
     );
     if (target === undefined) {
       return null;
@@ -260,13 +260,13 @@ class DynamicTargetEngine {
    * Load 30 Days Activity from Android (Stub for Native Module)
    * In real app: NativeModules.LoginTracker.getThirtyDaysActivity()
    */
-  async loadFromAndroid(): Promise<{ activity: number[]; counts: number[] }> {
+  async loadFromAndroid(): Promise<{activity: number[]; counts: number[]}> {
     // Try MMKV first
     const activityRaw = dynamicTargetMMKV.getString(
-      DYNAMIC_TARGET_KEYS.THIRTY_DAYS_ACTIVITY
+      DYNAMIC_TARGET_KEYS.THIRTY_DAYS_ACTIVITY,
     );
     const countsRaw = dynamicTargetMMKV.getString(
-      DYNAMIC_TARGET_KEYS.DAILY_COMPLETED_COUNTS
+      DYNAMIC_TARGET_KEYS.DAILY_COMPLETED_COUNTS,
     );
 
     if (activityRaw && countsRaw) {
@@ -292,26 +292,26 @@ class DynamicTargetEngine {
    * Recalculate (Call daily on app launch)
    */
   async recalculateFromStored(): Promise<number> {
-    const { activity, counts } = await this.loadFromAndroid();
+    const {activity, counts} = await this.loadFromAndroid();
     return this.generateComplexDynamicTarget(activity, counts);
   }
 
   /**
    * Simulate different user types (For Testing)
    */
-  simulateUser(type: "high" | "medium" | "low" | "churn"): number {
+  simulateUser(type: 'high' | 'medium' | 'low' | 'churn'): number {
     let activity: number[];
     let counts: number[];
 
     switch (type) {
-      case "high":
+      case 'high':
         // 28/30 days active, high volume, good momentum
         activity = [...Array(28).fill(1), 0, 1];
         counts = [...Array(30).fill(15)].map(
-          () => 15 + Math.floor(Math.random() * 5)
+          () => 15 + Math.floor(Math.random() * 5),
         );
         break;
-      case "medium":
+      case 'medium':
         // 15/30 active, medium volume
         activity = Array(30)
           .fill(0)
@@ -320,7 +320,7 @@ class DynamicTargetEngine {
           .fill(0)
           .map(() => Math.floor(Math.random() * 10));
         break;
-      case "low":
+      case 'low':
         // 8/30 active, low volume
         activity = Array(30)
           .fill(0)
@@ -329,7 +329,7 @@ class DynamicTargetEngine {
           .fill(0)
           .map(() => Math.floor(Math.random() * 3));
         break;
-      case "churn":
+      case 'churn':
         // Had 5 day gap
         activity = [
           1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1,
@@ -350,9 +350,9 @@ class DynamicTargetEngine {
   /**
    * Get History for Analytics Chart
    */
-  getHistory(): Array<{ date: string; target: number; rawScore: number }> {
+  getHistory(): Array<{date: string; target: number; rawScore: number}> {
     const raw = dynamicTargetMMKV.getString(
-      DYNAMIC_TARGET_KEYS.CALCULATED_HISTORY
+      DYNAMIC_TARGET_KEYS.CALCULATED_HISTORY,
     );
     if (!raw) {
       return [];

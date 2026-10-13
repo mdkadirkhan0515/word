@@ -3,22 +3,22 @@
  * Utility Helpers - Formatting, Filtering, Conversion
  */
 
-import { APP_CONSTANTS } from "./Constants";
+import {APP_CONSTANTS} from './Constants';
 
 // Number Helpers
 
 export const formatPercent = (value: number): string => `${Math.round(value)}%`;
 
 export const formatBengaliNumber = (num: number): string => {
-  const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   return num
     .toString()
-    .split("")
-    .map((d) => {
+    .split('')
+    .map(d => {
       const digit = parseInt(d, 10);
       return isNaN(digit) ? d : bengaliDigits[digit];
     })
-    .join("");
+    .join('');
 };
 
 export const clamp = (value: number, min: number, max: number): number => {
@@ -42,10 +42,10 @@ export const uniqueArray = <T>(array: T[]): T[] => {
 // Range Filter Helper - Auto small->big or big->small
 export const normalizeRange = (
   start: number | null,
-  end: number | null
-): { min: number | null; max: number | null } => {
+  end: number | null,
+): {min: number | null; max: number | null} => {
   if (start === null || end === null) {
-    return { min: start, max: end };
+    return {min: start, max: end};
   }
   return {
     min: Math.min(start, end),
@@ -56,7 +56,7 @@ export const normalizeRange = (
 export const isInRange = (
   value: number,
   start: number | null,
-  end: number | null
+  end: number | null,
 ): boolean => {
   if (start === null && end === null) {
     return true;
@@ -67,7 +67,7 @@ export const isInRange = (
   if (end === null) {
     return value >= start;
   }
-  const { min, max } = normalizeRange(start, end);
+  const {min, max} = normalizeRange(start, end);
   return value >= (min as number) && value <= (max as number);
 };
 
@@ -77,14 +77,14 @@ export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) {
     return text;
   }
-  return text.substring(0, maxLength) + "...";
+  return text.substring(0, maxLength) + '...';
 };
 
 export const toEventCardDisplay = (
   chapterName: string,
-  displayIds: number[]
+  displayIds: number[],
 ): string => {
-  const idStr = displayIds.map((id) => `#${id}`).join(", ");
+  const idStr = displayIds.map(id => `#${id}`).join(', ');
   return `${chapterName} ${idStr}`;
 };
 
@@ -92,7 +92,7 @@ export const toEventCardDisplay = (
 
 export const calculateProgressPercent = (
   completed: number,
-  total: number
+  total: number,
 ): number => {
   if (total === 0) {
     return 0;
@@ -102,15 +102,15 @@ export const calculateProgressPercent = (
 
 export const getProgressColor = (percent: number): string => {
   if (percent >= 80) {
-    return "#4CAF50";
+    return '#4CAF50';
   } // Green
   if (percent >= 50) {
-    return "#FFC107";
+    return '#FFC107';
   } // Yellow
   if (percent >= 20) {
-    return "#FF9800";
+    return '#FF9800';
   } // Orange
-  return "#E0E0E0"; // Gray
+  return '#E0E0E0'; // Gray
 };
 
 // Bank Helpers
@@ -126,7 +126,7 @@ export const canAfford = (balance: number, cost: number): boolean => {
 // Date Helpers
 
 export const getTodayString = (): string => {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toISOString().split('T')[0];
 };
 
 export const isNewDay = (lastDate: string | null): boolean => {
@@ -146,19 +146,19 @@ export const getDaysDiff = (date1: string, date2: string): number => {
 // Dynamic Target Helpers
 
 export const simulateActivity = (
-  type: "high" | "medium" | "low" | "churn"
-): { activity: number[]; counts: number[] } => {
+  type: 'high' | 'medium' | 'low' | 'churn',
+): {activity: number[]; counts: number[]} => {
   let activity: number[];
   let counts: number[];
 
   switch (type) {
-    case "high":
+    case 'high':
       activity = [...Array(28).fill(1), 0, 1];
       counts = [...Array(30).fill(15)].map(
-        () => 15 + Math.floor(Math.random() * 5)
+        () => 15 + Math.floor(Math.random() * 5),
       );
       break;
-    case "medium":
+    case 'medium':
       activity = Array(30)
         .fill(0)
         .map(() => (Math.random() > 0.5 ? 1 : 0));
@@ -166,7 +166,7 @@ export const simulateActivity = (
         .fill(0)
         .map(() => Math.floor(Math.random() * 10));
       break;
-    case "low":
+    case 'low':
       activity = Array(30)
         .fill(0)
         .map((_, i) => (i % 4 === 0 ? 1 : 0));
@@ -174,7 +174,7 @@ export const simulateActivity = (
         .fill(0)
         .map(() => Math.floor(Math.random() * 3));
       break;
-    case "churn":
+    case 'churn':
       activity = [
         1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0,
         0, 1, 1, 1, 1, 1,
@@ -188,7 +188,7 @@ export const simulateActivity = (
       counts = Array(30).fill(10);
   }
 
-  return { activity, counts };
+  return {activity, counts};
 };
 
 // Validation Helpers
@@ -199,7 +199,7 @@ export const isValidChapterName = (name: string): boolean => {
 
 export const isValidRange = (
   start: number | null,
-  end: number | null
+  end: number | null,
 ): boolean => {
   if (start === null && end === null) {
     return true;

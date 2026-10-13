@@ -5,8 +5,8 @@
  * Uses IN clause optimization, No Loop Query
  */
 
-import SQLiteManager from "../SQLiteManager";
-import { WordRow } from "../WordTable";
+import SQLiteManager from '../SQLiteManager';
+import {WordRow} from '../WordTable';
 
 export interface EnrichedDisplayData {
   wordId: number; // Internal Primary Key (67, 896)
@@ -29,19 +29,19 @@ export interface BatchFetchResult {
  * @returns Enriched data for Event Card rendering
  */
 export async function fetchDisplayDataFromPrimaryKeys(
-  primaryKeyArray: number[]
+  primaryKeyArray: number[],
 ): Promise<BatchFetchResult> {
   if (!primaryKeyArray || primaryKeyArray.length === 0) {
-    return { enriched: [], notFound: [], chapterGrouped: {} };
+    return {enriched: [], notFound: [], chapterGrouped: {}};
   }
 
   // Deduplicate and sanitize
   const uniqueIds = Array.from(
-    new Set(primaryKeyArray.filter((id) => Number.isFinite(id) && id > 0))
+    new Set(primaryKeyArray.filter(id => Number.isFinite(id) && id > 0)),
   );
 
   if (uniqueIds.length === 0) {
-    return { enriched: [], notFound: [], chapterGrouped: {} };
+    return {enriched: [], notFound: [], chapterGrouped: {}};
   }
 
   // Chunking for SQLite IN clause limit (SQLite max ~999 variables, we use 500 for safety)
@@ -55,7 +55,7 @@ export async function fetchDisplayDataFromPrimaryKeys(
 
   for (const chunk of chunks) {
     // Build placeholders: ?,?,?
-    const placeholders = chunk.map(() => "?").join(",");
+    const placeholders = chunk.map(() => '?').join(',');
     const query = `
       SELECT word_id, display_word_id, chapter_id, chapter_name, view_id, content
       FROM WordTable
@@ -79,15 +79,15 @@ export async function fetchDisplayDataFromPrimaryKeys(
     } catch (error) {
       console.error(
         `[BatchFetch] Chunk failed for IDs ${chunk.slice(0, 3)}...:`,
-        error
+        error,
       );
       // Continue with other chunks
     }
   }
 
   // Find not found IDs
-  const foundIds = new Set(allEnriched.map((e) => e.wordId));
-  const notFound = uniqueIds.filter((id) => !foundIds.has(id));
+  const foundIds = new Set(allEnriched.map(e => e.wordId));
+  const notFound = uniqueIds.filter(id => !foundIds.has(id));
 
   // Group by chapter_name for Event Card (e.g., অপরিচিতা #৩৫, #৭৮)
   const chapterGrouped: Record<string, EnrichedDisplayData[]> = {};
@@ -99,7 +99,7 @@ export async function fetchDisplayDataFromPrimaryKeys(
   }
 
   console.log(
-    `[BatchFetch] Mapped ${uniqueIds.length} PKs -> ${allEnriched.length} enriched, ${notFound.length} not found`
+    `[BatchFetch] Mapped ${uniqueIds.length} PKs -> ${allEnriched.length} enriched, ${notFound.length} not found`,
   );
 
   return {
@@ -115,7 +115,7 @@ export async function fetchDisplayDataFromPrimaryKeys(
  */
 export function toEventCardDisplay(enriched: EnrichedDisplayData[]): string {
   if (enriched.length === 0) {
-    return "";
+    return '';
   }
 
   // Group by chapter (usually same chapter)
@@ -130,10 +130,10 @@ export function toEventCardDisplay(enriched: EnrichedDisplayData[]): string {
   // Format: "অপরিচিতা #৩৫, #৭৮, #৮৮, #৮৯"
   return Object.entries(grouped)
     .map(([chapterName, ids]) => {
-      const idStr = ids.map((id) => `#${id}`).join(", ");
+      const idStr = ids.map(id => `#${id}`).join(', ');
       return `${chapterName} ${idStr}`;
     })
-    .join(" | ");
+    .join(' | ');
 }
 
 /**
@@ -142,19 +142,19 @@ export function toEventCardDisplay(enriched: EnrichedDisplayData[]): string {
  * Output: { m1: EnrichedDisplayData[], ... }
  */
 export async function fetchWeaknessStages(
-  stagesRaw: Record<string, number[]> // e.g., { m1: [67,896], m2: [65,86] }
+  stagesRaw: Record<string, number[]>, // e.g., { m1: [67,896], m2: [65,86] }
 ): Promise<Record<string, EnrichedDisplayData[]>> {
   const result: Record<string, EnrichedDisplayData[]> = {};
 
   // Process in parallel for speed
   const entries = Object.entries(stagesRaw);
   const promises = entries.map(async ([mode, ids]) => {
-    const { enriched } = await fetchDisplayDataFromPrimaryKeys(ids);
-    return { mode, enriched };
+    const {enriched} = await fetchDisplayDataFromPrimaryKeys(ids);
+    return {mode, enriched};
   });
 
   const resolved = await Promise.all(promises);
-  for (const { mode, enriched } of resolved) {
+  for (const {mode, enriched} of resolved) {
     result[mode] = enriched;
   }
 

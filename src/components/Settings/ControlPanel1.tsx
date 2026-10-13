@@ -5,10 +5,10 @@
  * Auto filter small->big or big->small
  */
 
-import React, { useState, useCallback } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import IconMap from "../../assets/icons/iconMap";
+import React, {useState, useCallback} from 'react';
+import {View, Text, TextInput, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconMap from '../../assets/icons/iconMap';
 
 export interface RangeFilter {
   chapterName: string;
@@ -25,10 +25,10 @@ const ModeRow: React.FC<{
   title: string;
   iconName: string;
   onFilterChange?: (filter: RangeFilter) => void;
-}> = ({ mode, title, iconName, onFilterChange }) => {
-  const [chapterName, setChapterName] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+}> = ({mode, title, iconName, onFilterChange}) => {
+  const [chapterName, setChapterName] = useState('');
+  const [start, setStart] = useState('');
+  const [end, setEnd] = useState('');
 
   const handleChange = useCallback(
     (newChapter: string, newStart: string, newEnd: string) => {
@@ -59,13 +59,13 @@ const ModeRow: React.FC<{
         end: endNum !== null && !isNaN(endNum) ? endNum : null,
       });
     },
-    [onFilterChange]
+    [onFilterChange],
   );
 
   return (
     <View style={styles.modeRow}>
       <View style={styles.modeHeader}>
-        <View style={[styles.iconBox, { backgroundColor: "#E8DEF8" }]}>
+        <View style={[styles.iconBox, {backgroundColor: '#E8DEF8'}]}>
           <Icon name={iconName as any} size={18} color="#6750A4" />
         </View>
         <Text style={styles.modeTitle}>{title}</Text>
@@ -76,7 +76,7 @@ const ModeRow: React.FC<{
           <Text style={styles.inputLabel}>চ্যাপ্টার নাম</Text>
           <TextInput
             value={chapterName}
-            onChangeText={(text) => handleChange(text, start, end)}
+            onChangeText={text => handleChange(text, start, end)}
             placeholder="যেমন: অপরিচিতা"
             placeholderTextColor="#938F99"
             style={styles.input}
@@ -88,7 +88,7 @@ const ModeRow: React.FC<{
             <Text style={styles.inputLabel}>শুরু</Text>
             <TextInput
               value={start}
-              onChangeText={(text) => handleChange(chapterName, text, end)}
+              onChangeText={text => handleChange(chapterName, text, end)}
               placeholder="১"
               placeholderTextColor="#938F99"
               keyboardType="number-pad"
@@ -102,7 +102,7 @@ const ModeRow: React.FC<{
             <Text style={styles.inputLabel}>শেষ</Text>
             <TextInput
               value={end}
-              onChangeText={(text) => handleChange(chapterName, start, text)}
+              onChangeText={text => handleChange(chapterName, start, text)}
               placeholder="২০"
               placeholderTextColor="#938F99"
               keyboardType="number-pad"
@@ -116,13 +116,13 @@ const ModeRow: React.FC<{
         <View style={styles.filterHint}>
           <Icon name="filter-outline" size={14} color="#49454F" />
           <Text style={styles.filterHintText}>
-            ফিল্টার: {chapterName || "সব"}{" "}
+            ফিল্টার: {chapterName || 'সব'}{' '}
             {start && end
               ? `(${Math.min(
                   parseInt(start) || 0,
-                  parseInt(end) || 0
+                  parseInt(end) || 0,
                 )} - ${Math.max(parseInt(start) || 0, parseInt(end) || 0)})`
-              : ""}
+              : ''}
           </Text>
         </View>
       )}
@@ -146,7 +146,7 @@ export const ControlPanel1: React.FC<ControlPanel1Props> = ({
         mode={1}
         title="সাউন্ড আইকন (m1)"
         iconName="volume-high"
-        onFilterChange={(filter) => onFilterChange?.(1, filter)}
+        onFilterChange={filter => onFilterChange?.(1, filter)}
       />
 
       <View style={styles.separator} />
@@ -155,7 +155,7 @@ export const ControlPanel1: React.FC<ControlPanel1Props> = ({
         mode={3}
         title="ডিফল্ট আইকন (m3)"
         iconName="book-open-page-variant"
-        onFilterChange={(filter) => onFilterChange?.(3, filter)}
+        onFilterChange={filter => onFilterChange?.(3, filter)}
       />
 
       <View style={styles.separator} />
@@ -164,7 +164,7 @@ export const ControlPanel1: React.FC<ControlPanel1Props> = ({
         mode={4}
         title="ইমোজি আইকন (m4)"
         iconName="lightbulb-on-outline"
-        onFilterChange={(filter) => onFilterChange?.(4, filter)}
+        onFilterChange={filter => onFilterChange?.(4, filter)}
       />
     </View>
   );
@@ -172,45 +172,45 @@ export const ControlPanel1: React.FC<ControlPanel1Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
     borderWidth: 1,
-    borderColor: "#E7E0EC",
+    borderColor: '#E7E0EC',
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#1C1B1F",
+    fontWeight: '600',
+    color: '#1C1B1F',
     marginBottom: 4,
   },
   sectionDesc: {
     fontSize: 11,
-    color: "#79747E",
+    color: '#79747E',
     marginBottom: 16,
   },
   modeRow: {
     paddingVertical: 8,
   },
   modeHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
   },
   iconBox: {
     width: 32,
     height: 32,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
   },
   modeTitle: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#1C1B1F",
+    fontWeight: '500',
+    color: '#1C1B1F',
   },
   filterRow: {
     marginLeft: 42,
@@ -220,53 +220,53 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 11,
-    color: "#49454F",
+    color: '#49454F',
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#E7E0EC",
+    borderColor: '#E7E0EC',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 40,
     fontSize: 13,
-    color: "#1C1B1F",
-    backgroundColor: "#FFFBFE",
+    color: '#1C1B1F',
+    backgroundColor: '#FFFBFE',
   },
   rangeGroup: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+    flexDirection: 'row',
+    alignItems: 'flex-end',
     gap: 8,
   },
   rangeInputGroup: {
     flex: 1,
   },
   rangeInput: {
-    textAlign: "center",
+    textAlign: 'center',
   },
   rangeSeparator: {
     fontSize: 16,
-    color: "#49454F",
+    color: '#49454F',
     marginBottom: 10,
     paddingHorizontal: 4,
   },
   filterHint: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginLeft: 42,
     marginTop: 8,
     padding: 8,
-    backgroundColor: "#F3EDF7",
+    backgroundColor: '#F3EDF7',
     borderRadius: 8,
     gap: 6,
   },
   filterHintText: {
     fontSize: 11,
-    color: "#49454F",
+    color: '#49454F',
   },
   separator: {
     height: 1,
-    backgroundColor: "#F3EDF7",
+    backgroundColor: '#F3EDF7',
     marginVertical: 8,
     marginLeft: 42,
   },

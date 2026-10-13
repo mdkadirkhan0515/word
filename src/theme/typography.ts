@@ -5,23 +5,23 @@
  * Supports Bengali & English with proper line height
  */
 
-import { TextStyle } from "react-native";
+import {TextStyle} from 'react-native';
 
 export const FontFamily = {
   // Bengali Support
   bengali: {
-    regular: "NotoSansBengali-Regular",
-    medium: "NotoSansBengali-Medium",
-    bold: "NotoSansBengali-Bold",
+    regular: 'NotoSansBengali-Regular',
+    medium: 'NotoSansBengali-Medium',
+    bold: 'NotoSansBengali-Bold',
   },
   // English
   english: {
-    regular: "Inter-Regular",
-    medium: "Inter-Medium",
-    bold: "Inter-Bold",
+    regular: 'Inter-Regular',
+    medium: 'Inter-Medium',
+    bold: 'Inter-Bold',
     // Fallback system
-    systemRegular: "System",
-    systemMedium: "System",
+    systemRegular: 'System',
+    systemMedium: 'System',
   },
 } as const;
 
@@ -50,10 +50,10 @@ export const LineHeight = {
 } as const;
 
 export const FontWeight = {
-  regular: "400" as TextStyle["fontWeight"],
-  medium: "500" as TextStyle["fontWeight"],
-  semiBold: "600" as TextStyle["fontWeight"],
-  bold: "700" as TextStyle["fontWeight"],
+  regular: '400' as TextStyle['fontWeight'],
+  medium: '500' as TextStyle['fontWeight'],
+  semiBold: '600' as TextStyle['fontWeight'],
+  bold: '700' as TextStyle['fontWeight'],
 } as const;
 
 // Text Styles - Production Ready
@@ -178,8 +178,8 @@ export const FontSizeControl = {
   step: 1,
 
   icons: {
-    decrease: "format-font-size-decrease" as const, // Vector icon
-    increase: "format-font-size-increase" as const,
+    decrease: 'format-font-size-decrease' as const, // Vector icon
+    increase: 'format-font-size-increase' as const,
     size: 24, // Header icon size
   },
 
@@ -200,12 +200,12 @@ export const getHighlightTextStyle = (
     text: string;
     highlightYellow: string;
     highlightPrimaryGlow: string;
-  }
+  },
 ): TextStyle => {
   if (!isHighlighted) {
     return {
       color: colors.text,
-      backgroundColor: "transparent",
+      backgroundColor: 'transparent',
     } as TextStyle;
   }
 
@@ -215,7 +215,7 @@ export const getHighlightTextStyle = (
     borderRadius: 4,
     paddingHorizontal: 2,
     textShadowColor: colors.highlightPrimaryGlow,
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 8,
   } as TextStyle;
 };

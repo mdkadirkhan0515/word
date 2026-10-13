@@ -3,8 +3,8 @@
  * Settings Types - TTS Control, Manifesto, Theme, Language, Control Panels
  */
 
-export type ThemeMode = "light" | "dark" | "system";
-export type LanguageMode = "bengali" | "english" | "system";
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type LanguageMode = 'bengali' | 'english' | 'system';
 
 export interface TTSSettings {
   speechRate: number; // 0.1 - 1.0
@@ -85,19 +85,19 @@ export interface LanguageOption {
 
 // MMKV Keys for Settings
 export const SETTINGS_MMKV_KEYS = {
-  APP_THEME: "app_theme",
-  APP_LANGUAGE: "app_language",
-  FONT_SIZE: "app_font_size",
-  PRIMARY_COLOR: "app_primary_color",
-  TTS_RATE: "tts_speech_rate",
-  TTS_GAP: "tts_time_gap",
-  TTS_BACKGROUND: "tts_background_enabled",
-  FILTER_MODE_1: "filter_mode_1",
-  FILTER_MODE_3: "filter_mode_3",
-  FILTER_MODE_4: "filter_mode_4",
-  PLAY_FILTER_MODE_2: "play_filter_mode_2",
-  PLAY_FILTER_MODE_5: "play_filter_mode_5",
-  MANIFESTO_DOWNLOADED: "manifesto_downloaded_chapters",
+  APP_THEME: 'app_theme',
+  APP_LANGUAGE: 'app_language',
+  FONT_SIZE: 'app_font_size',
+  PRIMARY_COLOR: 'app_primary_color',
+  TTS_RATE: 'tts_speech_rate',
+  TTS_GAP: 'tts_time_gap',
+  TTS_BACKGROUND: 'tts_background_enabled',
+  FILTER_MODE_1: 'filter_mode_1',
+  FILTER_MODE_3: 'filter_mode_3',
+  FILTER_MODE_4: 'filter_mode_4',
+  PLAY_FILTER_MODE_2: 'play_filter_mode_2',
+  PLAY_FILTER_MODE_5: 'play_filter_mode_5',
+  MANIFESTO_DOWNLOADED: 'manifesto_downloaded_chapters',
 } as const;
 
 export type SettingsMMKVKey =

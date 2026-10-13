@@ -5,18 +5,18 @@
  * No Emoji, No Hardcode Theme, Zero Loss Mechanics
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { AppState, AppStateStatus } from "react-native";
+import {useEffect, useRef, useState, useCallback} from 'react';
+import {AppState, AppStateStatus} from 'react-native';
 import TTSController, {
   TTSMode,
   TTSState,
   ResumePosition,
-} from "../services/TTSEngine/TTSController";
+} from '../services/TTSEngine/TTSController';
 import HighlightingEngine, {
   HighlightState,
   ThemeColors,
-} from "../services/TTSEngine/HighlightingEngine";
-import { ttsMMKV, TTS_KEYS } from "../services/TTSEngine/TTSController";
+} from '../services/TTSEngine/HighlightingEngine';
+import {ttsMMKV, TTS_KEYS} from '../services/TTSEngine/TTSController';
 
 export interface UseTTSOptions {
   word_id: number;
@@ -51,7 +51,7 @@ export interface UseTTSReturn {
   // Styles (No Hardcode Theme)
   getCardStyle: (isActive: boolean) => any;
   getTextStyle: (isHighlighted: boolean) => any;
-  highlightedSegments: Array<{ text: string; highlighted: boolean }>;
+  highlightedSegments: Array<{text: string; highlighted: boolean}>;
 }
 
 export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
@@ -65,7 +65,7 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
     onProgress,
   } = options;
 
-  const [ttsState, setTtsState] = useState<TTSState>("STOPPED");
+  const [ttsState, setTtsState] = useState<TTSState>('STOPPED');
   const [highlightState, setHighlightState] = useState<HighlightState>({
     isHighlighted: false,
     word_id: null,
@@ -75,7 +75,7 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
   });
   const [currentCharIndex, setCurrentCharIndex] = useState<number>(0);
   const [resumePosition, setResumePosition] = useState<ResumePosition | null>(
-    null
+    null,
   );
 
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -107,24 +107,24 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
     }, 200); // Polling for MMKV sync (MMKV has no built-in listener in JS, but super fast)
 
     // Subscribe to highlighting
-    const unsubscribeHighlight = HighlightingEngine.subscribe((state) => {
+    const unsubscribeHighlight = HighlightingEngine.subscribe(state => {
       if (state.word_id === word_id || state.word_id === null) {
         setHighlightState(state);
       }
     });
 
     // AppState listener for Background Audio Logic
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
       if (
         appStateRef.current.match(/inactive|background/) &&
-        nextAppState === "active"
+        nextAppState === 'active'
       ) {
         // Came back to foreground
       } else if (nextAppState.match(/inactive|background/)) {
         // Going to background
         const bgEnabled = TTSController.isBackgroundEnabled();
         const activeMode = TTSController.getActiveMode();
-        if (!bgEnabled || (activeMode !== "m2" && activeMode !== "m5")) {
+        if (!bgEnabled || (activeMode !== 'm2' && activeMode !== 'm5')) {
           // If not m2/m5 or background disabled, stop
           TTSController.onNavigationExit();
         }
@@ -143,12 +143,12 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
   }, [word_id, theme]);
 
   // --- Derived ---
-  const isPlaying = ttsState === "PLAYING";
-  const isPaused = ttsState === "PAUSED";
+  const isPlaying = ttsState === 'PLAYING';
+  const isPaused = ttsState === 'PAUSED';
 
   const highlightedSegments = HighlightingEngine.getHighlightedSegments(
     fullText,
-    highlightState
+    highlightState,
   );
 
   // --- m1 & m4 Logic: Card Press = Play/Stop ---
@@ -157,15 +157,15 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
     const currentState = TTSController.getState();
 
     // If same card is playing, stop it
-    if (currentState === "PLAYING" && currentMode === mode) {
+    if (currentState === 'PLAYING' && currentMode === mode) {
       const pos = TTSController.getResumePosition();
       if (pos && pos.word_id === word_id) {
         // Pause and save char position
         await TTSController.pause(word_id, currentCharIndex);
         HighlightingEngine.endHighlight();
-        setTtsState("PAUSED");
+        setTtsState('PAUSED');
       } else {
-        await TTSController.stopImmediately("MANUAL_STOP");
+        await TTSController.stopImmediately('MANUAL_STOP');
         HighlightingEngine.endHighlight();
       }
       return;
@@ -173,7 +173,7 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
 
     // If paused on same word, resume
     if (
-      currentState === "PAUSED" &&
+      currentState === 'PAUSED' &&
       resumePosition &&
       resumePosition.word_id === word_id
     ) {
@@ -182,15 +182,15 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
         word_id,
         resumePosition.char_index,
         resumePosition.char_index + 10,
-        mode
+        mode,
       );
       return;
     }
 
     // Conflict: Auto (m2/m5) running, manual (m1/m4) interrupt
     if (
-      currentState === "PLAYING" &&
-      (currentMode === "m2" || currentMode === "m5")
+      currentState === 'PLAYING' &&
+      (currentMode === 'm2' || currentMode === 'm5')
     ) {
       await TTSController.handleManualInterruptDuringAuto();
     }
@@ -201,7 +201,7 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
       word_id,
       currentCharIndex,
       currentCharIndex + 5,
-      mode
+      mode,
     );
     await TTSController.play(fullText, word_id, mode);
 
@@ -212,21 +212,21 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
   // --- m2 & m5 Logic: Empty Space Press = Pause/Resume ---
   const handleEmptySpacePress = useCallback(async () => {
     // Only for m2 & m5
-    if (mode !== "m2" && mode !== "m5") {
+    if (mode !== 'm2' && mode !== 'm5') {
       return;
     }
 
     const state = TTSController.getState();
 
-    if (state === "PLAYING") {
+    if (state === 'PLAYING') {
       // Pause
       await TTSController.pause(word_id, currentCharIndex);
       HighlightingEngine.endHighlight();
-      setTtsState("PAUSED");
-    } else if (state === "PAUSED") {
+      setTtsState('PAUSED');
+    } else if (state === 'PAUSED') {
       // Resume from same point
       await TTSController.resume(fullText, word_id);
-      setTtsState("PLAYING");
+      setTtsState('PLAYING');
     } else {
       // If stopped, start
       await handleCardPress();
@@ -234,31 +234,31 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
   }, [mode, word_id, currentCharIndex, fullText, handleCardPress]);
 
   const stop = useCallback(async () => {
-    await TTSController.stopImmediately("MANUAL_STOP");
+    await TTSController.stopImmediately('MANUAL_STOP');
     HighlightingEngine.endHighlight();
-    setTtsState("STOPPED");
+    setTtsState('STOPPED');
   }, []);
 
   const pause = useCallback(async () => {
     await TTSController.pause(word_id, currentCharIndex);
-    setTtsState("PAUSED");
+    setTtsState('PAUSED');
   }, [word_id, currentCharIndex]);
 
   const resume = useCallback(async () => {
     await TTSController.resume(fullText, word_id);
-    setTtsState("PLAYING");
+    setTtsState('PLAYING');
   }, [word_id, fullText]);
 
   // --- Auto-Play Gap Logic for m2/m5 Sequence ---
   useEffect(() => {
     // When TTS finishes, if in m2/m5 auto mode, wait gap then trigger next
     if (
-      ttsState === "STOPPED" &&
+      ttsState === 'STOPPED' &&
       highlightState.word_id === word_id &&
       highlightState.isHighlighted === false
     ) {
       const wasPlaying = resumePosition !== null || currentCharIndex > 0;
-      if (wasPlaying && (mode === "m2" || mode === "m5")) {
+      if (wasPlaying && (mode === 'm2' || mode === 'm5')) {
         // Auto sequence: wait 300ms gap as per architecture
         gapTimeoutRef.current = setTimeout(() => {
           onComplete?.(word_id);
@@ -281,10 +281,10 @@ export const useTTS = (options: UseTTSOptions): UseTTSReturn => {
     (isActive: boolean) => {
       return HighlightingEngine.getCardContainerStyle(
         isActive,
-        highlightState.isHighlighted && highlightState.word_id === word_id
+        highlightState.isHighlighted && highlightState.word_id === word_id,
       );
     },
-    [highlightState]
+    [highlightState],
   );
 
   const getTextStyle = useCallback((isHighlighted: boolean) => {

@@ -5,10 +5,10 @@
  * m1,m3,m4 stop on Navigation Exit or Background
  */
 
-import TTSController, { TTSMode } from "./TTSController";
-import TTSStateKey from "../../storage/keys/TTSStateKey";
-import { AppState, AppStateStatus } from "react-native";
-import { ttsBrainMMKV } from "../../storage/MMKVInstance";
+import TTSController, {TTSMode} from './TTSController';
+import TTSStateKey from '../../storage/keys/TTSStateKey';
+import {AppState, AppStateStatus} from 'react-native';
+import {ttsBrainMMKV} from '../../storage/MMKVInstance';
 
 class BackgroundAudioSingleton {
   private appStateSubscription: any = null;
@@ -21,12 +21,12 @@ class BackgroundAudioSingleton {
     this.isBackgroundEnabled = TTSStateKey.isBackgroundEnabled();
 
     this.appStateSubscription = AppState.addEventListener(
-      "change",
-      this.handleAppStateChange.bind(this)
+      'change',
+      this.handleAppStateChange.bind(this),
     );
 
     console.log(
-      `[BackgroundAudio] Initialized, background_enabled=${this.isBackgroundEnabled}`
+      `[BackgroundAudio] Initialized, background_enabled=${this.isBackgroundEnabled}`,
     );
   }
 
@@ -35,13 +35,13 @@ class BackgroundAudioSingleton {
     const currentState = TTSStateKey.getCurrentState();
 
     console.log(
-      `[BackgroundAudio] AppState changed to ${nextAppState}, mode=${activeMode}, state=${currentState}`
+      `[BackgroundAudio] AppState changed to ${nextAppState}, mode=${activeMode}, state=${currentState}`,
     );
 
     if (nextAppState.match(/inactive|background/)) {
       // App going to background
       this.onAppBackground(activeMode, currentState);
-    } else if (nextAppState === "active") {
+    } else if (nextAppState === 'active') {
       // App returning to foreground
       this.onAppForeground();
     }
@@ -49,20 +49,20 @@ class BackgroundAudioSingleton {
 
   private onAppBackground(
     activeMode: TTSMode | null,
-    currentState: string
+    currentState: string,
   ): void {
     const bgEnabled = TTSStateKey.isBackgroundEnabled();
 
     // Rule: Only m2 & m5 can continue in background if enabled
     if (!bgEnabled) {
-      console.log("[BackgroundAudio] Background disabled, stopping TTS");
+      console.log('[BackgroundAudio] Background disabled, stopping TTS');
       TTSController.onNavigationExit();
       return;
     }
 
-    if (activeMode !== "m2" && activeMode !== "m5") {
+    if (activeMode !== 'm2' && activeMode !== 'm5') {
       console.log(
-        `[BackgroundAudio] Mode ${activeMode} cannot play in background, stopping`
+        `[BackgroundAudio] Mode ${activeMode} cannot play in background, stopping`,
       );
       TTSController.onNavigationExit();
       return;
@@ -74,7 +74,7 @@ class BackgroundAudioSingleton {
   }
 
   private onAppForeground(): void {
-    console.log("[BackgroundAudio] App returned to foreground");
+    console.log('[BackgroundAudio] App returned to foreground');
     // Optionally resume if paused due to background
   }
 
@@ -84,7 +84,7 @@ class BackgroundAudioSingleton {
   setBackgroundEnabled(enabled: boolean): void {
     this.isBackgroundEnabled = enabled;
     TTSStateKey.setBackgroundEnabled(enabled);
-    ttsBrainMMKV.set("tts_background_enabled", enabled);
+    ttsBrainMMKV.set('tts_background_enabled', enabled);
     console.log(`[BackgroundAudio] Background enabled set to ${enabled}`);
   }
 
@@ -99,7 +99,7 @@ class BackgroundAudioSingleton {
     if (!this.isBackgroundEnabled) {
       return false;
     }
-    return mode === "m2" || mode === "m5";
+    return mode === 'm2' || mode === 'm5';
   }
 
   /**

@@ -4,11 +4,11 @@
  * Features: Single Card Repeat, Card-to-Card Repeat, Random, Parallel, Background
  */
 
-import TTSController, { TTSMode } from "./TTSController";
-import TTSStateKey from "../../storage/keys/TTSStateKey";
-import { ttsBrainMMKV } from "../../storage/MMKVInstance";
-import { PlayModeFilters } from "../../types/progress.types";
-import WordProgressKey from "../../storage/keys/WordProgressKey";
+import TTSController, {TTSMode} from './TTSController';
+import TTSStateKey from '../../storage/keys/TTSStateKey';
+import {ttsBrainMMKV} from '../../storage/MMKVInstance';
+import {PlayModeFilters} from '../../types/progress.types';
+import WordProgressKey from '../../storage/keys/WordProgressKey';
 
 export interface AutoPlayQueueItem {
   word_id: number;
@@ -48,7 +48,7 @@ class AutoPlayEngineSingleton {
     this.shouldStop = false;
 
     console.log(
-      `[AutoPlayEngine] Starting ${config.mode} with ${this.queue.length} items, gap ${config.gapMs}ms`
+      `[AutoPlayEngine] Starting ${config.mode} with ${this.queue.length} items, gap ${config.gapMs}ms`,
     );
 
     await this.playNext();
@@ -61,13 +61,11 @@ class AutoPlayEngineSingleton {
     // Filter: Single Card Repeat
     if (filters.singleRepeat && filters.singleRepeatNumber !== null) {
       const targetId = filters.singleRepeatNumber;
-      const filtered = queue.filter(
-        (item) => item.display_word_id === targetId
-      );
+      const filtered = queue.filter(item => item.display_word_id === targetId);
       if (filtered.length > 0 && filters.singleRepeatChapter) {
         // Also filter by chapter name if provided
-        const byChapter = filtered.filter((item) =>
-          item.chapter_name.includes(filters.singleRepeatChapter)
+        const byChapter = filtered.filter(item =>
+          item.chapter_name.includes(filters.singleRepeatChapter),
         );
         queue = byChapter.length > 0 ? byChapter : filtered;
       } else {
@@ -77,7 +75,7 @@ class AutoPlayEngineSingleton {
       if (queue.length === 1) {
         // Keep single, will loop
         console.log(
-          `[AutoPlayEngine] Single Repeat Mode: ${queue[0].chapter_name} #${queue[0].display_word_id}`
+          `[AutoPlayEngine] Single Repeat Mode: ${queue[0].chapter_name} #${queue[0].display_word_id}`,
         );
       }
     }
@@ -90,15 +88,15 @@ class AutoPlayEngineSingleton {
       const min = Math.min(filters.cardToCardStart, filters.cardToCardEnd);
       const max = Math.max(filters.cardToCardStart, filters.cardToCardEnd);
       queue = queue.filter(
-        (item) => item.display_word_id >= min && item.display_word_id <= max
+        item => item.display_word_id >= min && item.display_word_id <= max,
       );
       if (filters.cardToCardChapter) {
-        queue = queue.filter((item) =>
-          item.chapter_name.includes(filters.cardToCardChapter)
+        queue = queue.filter(item =>
+          item.chapter_name.includes(filters.cardToCardChapter),
         );
       }
       console.log(
-        `[AutoPlayEngine] Card-to-Card Repeat: ${min}-${max}, ${queue.length} cards`
+        `[AutoPlayEngine] Card-to-Card Repeat: ${min}-${max}, ${queue.length} cards`,
       );
     }
 
@@ -107,12 +105,12 @@ class AutoPlayEngineSingleton {
       // Shuffle
       queue = this.shuffleArray(queue);
       console.log(
-        `[AutoPlayEngine] Random Mode: Shuffled ${queue.length} cards`
+        `[AutoPlayEngine] Random Mode: Shuffled ${queue.length} cards`,
       );
     } else if (filters.parallel) {
       // Keep sequential (normal)
       console.log(
-        `[AutoPlayEngine] Parallel Mode: Sequential ${queue.length} cards`
+        `[AutoPlayEngine] Parallel Mode: Sequential ${queue.length} cards`,
       );
     }
 
@@ -141,9 +139,9 @@ class AutoPlayEngineSingleton {
         this.config.filters.cardToCardRepeat
       ) {
         this.currentIndex = 0;
-        console.log("[AutoPlayEngine] Looping queue...");
+        console.log('[AutoPlayEngine] Looping queue...');
       } else {
-        console.log("[AutoPlayEngine] Auto-play completed");
+        console.log('[AutoPlayEngine] Auto-play completed');
         this.isAutoPlaying = false;
         return;
       }
@@ -155,7 +153,7 @@ class AutoPlayEngineSingleton {
     console.log(
       `[AutoPlayEngine] Playing ${this.currentIndex + 1}/${
         this.queue.length
-      }: #${currentItem.display_word_id}`
+      }: #${currentItem.display_word_id}`,
     );
 
     try {
@@ -166,7 +164,7 @@ class AutoPlayEngineSingleton {
       await TTSController.playSequentialWord(
         currentItem.word_id,
         currentItem.content,
-        this.config.mode
+        this.config.mode,
       );
 
       // Wait for TTS to complete + gap
@@ -178,11 +176,11 @@ class AutoPlayEngineSingleton {
       }
 
       // Mark progress
-      const modeNum = this.config.mode === "m2" ? 2 : 5;
+      const modeNum = this.config.mode === 'm2' ? 2 : 5;
       await WordProgressKey.incrementMode(
         currentItem.word_id,
         modeNum as any,
-        1
+        1,
       );
 
       this.currentIndex++;
@@ -191,16 +189,16 @@ class AutoPlayEngineSingleton {
         await this.playNext();
       }
     } catch (error) {
-      console.error("[AutoPlayEngine] PlayNext failed:", error);
+      console.error('[AutoPlayEngine] PlayNext failed:', error);
       this.isAutoPlaying = false;
     }
   }
 
   private async waitForCompletion(wordId: number): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const checkInterval = setInterval(() => {
         const currentState = TTSStateKey.getCurrentState();
-        if (currentState === "STOPPED" || this.shouldStop) {
+        if (currentState === 'STOPPED' || this.shouldStop) {
           clearInterval(checkInterval);
           resolve();
         }
@@ -215,28 +213,28 @@ class AutoPlayEngineSingleton {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async stop(): Promise<void> {
     this.shouldStop = true;
     this.isAutoPlaying = false;
-    await TTSController.stopImmediately("USER_STOP");
-    console.log("[AutoPlayEngine] Stopped");
+    await TTSController.stopImmediately('USER_STOP');
+    console.log('[AutoPlayEngine] Stopped');
   }
 
   async pause(): Promise<void> {
     await TTSController.pause(
       (TTSController as any).getResumePosition ? 0 : 0,
-      0
+      0,
     );
-    console.log("[AutoPlayEngine] Paused");
+    console.log('[AutoPlayEngine] Paused');
   }
 
   async resume(): Promise<void> {
     if (this.config && this.currentIndex < this.queue.length) {
-      await TTSController.resume("", 0);
-      console.log("[AutoPlayEngine] Resumed");
+      await TTSController.resume('', 0);
+      console.log('[AutoPlayEngine] Resumed');
     }
   }
 

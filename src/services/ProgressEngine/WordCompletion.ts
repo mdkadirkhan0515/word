@@ -6,11 +6,11 @@
 
 import WordProgressKey, {
   WordModeProgress,
-} from "../../storage/keys/WordProgressKey";
-import { updateDatabaseViewId } from "../../database/queries/UnlockQuery";
-import SQLiteManager from "../../database/SQLiteManager";
-import ChapterTable from "../../database/ChapterTable";
-import { eventsMMKV } from "../../storage/MMKVInstance";
+} from '../../storage/keys/WordProgressKey';
+import {updateDatabaseViewId} from '../../database/queries/UnlockQuery';
+import SQLiteManager from '../../database/SQLiteManager';
+import ChapterTable from '../../database/ChapterTable';
+import {eventsMMKV} from '../../storage/MMKVInstance';
 
 export interface CompletionResult {
   word_id: number;
@@ -54,8 +54,8 @@ class WordCompletionSingleton {
     // Check current view_id in SQLite to avoid unnecessary write
     try {
       const [result] = await SQLiteManager.executeSql(
-        "SELECT view_id, chapter_id FROM WordTable WHERE word_id = ?;",
-        [word_id]
+        'SELECT view_id, chapter_id FROM WordTable WHERE word_id = ?;',
+        [word_id],
       );
 
       if (result.rows.length === 0) {
@@ -97,10 +97,10 @@ class WordCompletionSingleton {
         };
       }
 
-      return { word_id, isCompleted: true, wasNewlyCompleted: false, progress };
+      return {word_id, isCompleted: true, wasNewlyCompleted: false, progress};
     } catch (error) {
       console.error(`[WordCompletion] Failed for ${word_id}:`, error);
-      return { word_id, isCompleted: true, wasNewlyCompleted: false, progress };
+      return {word_id, isCompleted: true, wasNewlyCompleted: false, progress};
     }
   }
 
@@ -115,7 +115,7 @@ class WordCompletionSingleton {
       if (status.is80ManagerPassed && !status.isUnlocked) {
         await ChapterTable.unlockChapter(chapter_id);
         console.log(
-          `[WordCompletion] Chapter ${chapter_id} auto-unlocked via 80%`
+          `[WordCompletion] Chapter ${chapter_id} auto-unlocked via 80%`,
         );
       }
 
@@ -125,14 +125,14 @@ class WordCompletionSingleton {
         eventsMMKV.set(`chapter_${chapter_id}_guard_event_at`, Date.now());
         eventsMMKV.set(
           `chapter_${chapter_id}_completed_percent`,
-          status.completedPercent
+          status.completedPercent,
         );
         console.log(
-          `[WordCompletion] Chapter ${chapter_id} 50% Guard PASSED (${status.completedPercent}%) - Show Bank Button`
+          `[WordCompletion] Chapter ${chapter_id} 50% Guard PASSED (${status.completedPercent}%) - Show Bank Button`,
         );
       }
     } catch (error) {
-      console.error("[WordCompletion] onWordCompleted failed:", error);
+      console.error('[WordCompletion] onWordCompleted failed:', error);
     }
   }
 
@@ -159,7 +159,7 @@ class WordCompletionSingleton {
       }
     }
 
-    return { newlyCompleted, alreadyCompleted, incomplete };
+    return {newlyCompleted, alreadyCompleted, incomplete};
   }
 
   /**

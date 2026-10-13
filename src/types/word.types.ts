@@ -67,5 +67,5 @@ export interface CompletionResult {
   word_id: number;
   isCompleted: boolean;
   wasNewlyCompleted: boolean;
-  progress: import("./progress.types").WordModeProgress;
+  progress: import('./progress.types').WordModeProgress;
 }

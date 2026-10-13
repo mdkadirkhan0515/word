@@ -13,14 +13,14 @@
 import WeaknessAnalyzer, {
   StageNumber,
   FullWeaknessAnalysis,
-} from "./WeaknessAnalyzer";
+} from './WeaknessAnalyzer';
 import MappingPipeline, {
   EventCard,
   DailyEventPipelineResult,
-} from "./MappingPipeline";
-import BankManager from "../../storage/DailyBank/BankManager";
-import { dailyBankMMKV } from "../../storage/MMKVInstance";
-import WordProgressKey from "../../storage/keys/WordProgressKey";
+} from './MappingPipeline';
+import BankManager from '../../storage/DailyBank/BankManager';
+import {dailyBankMMKV} from '../../storage/MMKVInstance';
+import WordProgressKey from '../../storage/keys/WordProgressKey';
 
 export interface DailyEventState {
   bankBalance: number;
@@ -74,17 +74,17 @@ class DailyEventCenterSingleton {
     const completedCardIds = this.getCompletedCardIds();
 
     // Build stage states
-    const stage1Completed = pipelineResult.stage1Cards.filter((c) =>
-      completedCardIds.includes(c.id)
+    const stage1Completed = pipelineResult.stage1Cards.filter(c =>
+      completedCardIds.includes(c.id),
     ).length;
-    const stage2Completed = pipelineResult.stage2Cards.filter((c) =>
-      completedCardIds.includes(c.id)
+    const stage2Completed = pipelineResult.stage2Cards.filter(c =>
+      completedCardIds.includes(c.id),
     ).length;
-    const stage3Completed = pipelineResult.stage3Cards.filter((c) =>
-      completedCardIds.includes(c.id)
+    const stage3Completed = pipelineResult.stage3Cards.filter(c =>
+      completedCardIds.includes(c.id),
     ).length;
-    const stage4Completed = pipelineResult.stage4Cards.filter((c) =>
-      completedCardIds.includes(c.id)
+    const stage4Completed = pipelineResult.stage4Cards.filter(c =>
+      completedCardIds.includes(c.id),
     ).length;
 
     const stage1Locked = false; // Stage 1 always ACTIVE
@@ -148,7 +148,7 @@ class DailyEventCenterSingleton {
     };
 
     console.log(
-      `[DailyEventCenter] Initialized: Bank ${bank.totalBalance}%, Stage1 ${stage1Completed}/${pipelineResult.stage1Cards.length}`
+      `[DailyEventCenter] Initialized: Bank ${bank.totalBalance}%, Stage1 ${stage1Completed}/${pipelineResult.stage1Cards.length}`,
     );
 
     return state;
@@ -159,25 +159,25 @@ class DailyEventCenterSingleton {
    * After completion, mark card as completed and add +1% to bank
    */
   async onCardCompleted(
-    card: EventCard
-  ): Promise<{ newBankBalance: number; shouldUnlockNextStage: boolean }> {
+    card: EventCard,
+  ): Promise<{newBankBalance: number; shouldUnlockNextStage: boolean}> {
     // Mark card as completed in MMKV
     const completedIds = this.getCompletedCardIds();
     if (!completedIds.includes(card.id)) {
       completedIds.push(card.id);
-      dailyBankMMKV.set("completed_event_cards", JSON.stringify(completedIds));
+      dailyBankMMKV.set('completed_event_cards', JSON.stringify(completedIds));
 
       // Add +1% to bank
       const newBank = await BankManager.addCredit(
         card.creditPercent,
-        `event_card_${card.id}`
+        `event_card_${card.id}`,
       );
 
       // Check if stage completed
       const shouldUnlockNext = await this.checkStageCompletion(card.stage);
 
       console.log(
-        `[DailyEventCenter] Card ${card.id} completed, +${card.creditPercent}% | Bank: ${newBank.totalBalance}%`
+        `[DailyEventCenter] Card ${card.id} completed, +${card.creditPercent}% | Bank: ${newBank.totalBalance}%`,
       );
 
       return {
@@ -216,7 +216,7 @@ class DailyEventCenterSingleton {
   }
 
   private getCompletedCardIds(): string[] {
-    const raw = dailyBankMMKV.getString("completed_event_cards");
+    const raw = dailyBankMMKV.getString('completed_event_cards');
     if (!raw) {
       return [];
     }
@@ -232,15 +232,15 @@ class DailyEventCenterSingleton {
    * Keeps bank balance but resets completed cards if new day
    */
   resetIfNewDay(): boolean {
-    const lastReset = dailyBankMMKV.getString("last_event_reset_date");
-    const today = new Date().toISOString().split("T")[0];
+    const lastReset = dailyBankMMKV.getString('last_event_reset_date');
+    const today = new Date().toISOString().split('T')[0];
 
     if (lastReset !== today) {
       // New day - reset completed cards
-      dailyBankMMKV.delete("completed_event_cards");
-      dailyBankMMKV.set("completed_event_stages", JSON.stringify([1])); // Reset to only stage 1 active
-      dailyBankMMKV.set("last_event_reset_date", today);
-      console.log("[DailyEventCenter] New day - reset event cards");
+      dailyBankMMKV.delete('completed_event_cards');
+      dailyBankMMKV.set('completed_event_stages', JSON.stringify([1])); // Reset to only stage 1 active
+      dailyBankMMKV.set('last_event_reset_date', today);
+      console.log('[DailyEventCenter] New day - reset event cards');
       return true;
     }
 
@@ -251,7 +251,7 @@ class DailyEventCenterSingleton {
    * Get Bank Display for UI Header
    * "ডেইলি ব্যাংক টোটাল ব্যালেন্স: ৪৯০% ক্রেডিট (আজকের অর্জন: +২০% | মোট উপলব্ধ: ৪৯০%)"
    */
-  getBankDisplay(): { total: number; today: number; displayText: string } {
+  getBankDisplay(): {total: number; today: number; displayText: string} {
     const bank = BankManager.getBalance();
     return {
       total: bank.totalBalance,
@@ -264,11 +264,11 @@ class DailyEventCenterSingleton {
    * Full reset (for testing)
    */
   async fullReset(): Promise<void> {
-    dailyBankMMKV.delete("completed_event_cards");
-    dailyBankMMKV.delete("completed_event_stages");
-    dailyBankMMKV.delete("last_event_reset_date");
+    dailyBankMMKV.delete('completed_event_cards');
+    dailyBankMMKV.delete('completed_event_stages');
+    dailyBankMMKV.delete('last_event_reset_date');
     await BankManager.reset();
-    console.log("[DailyEventCenter] Full reset done");
+    console.log('[DailyEventCenter] Full reset done');
   }
 }
 

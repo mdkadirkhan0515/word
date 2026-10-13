@@ -5,8 +5,8 @@
  * Performance: O(n) instead of O(5n)
  */
 
-import WordProgressKey from "../../storage/keys/WordProgressKey";
-import { chapterBoxMMKV } from "../../storage/MMKVInstance";
+import WordProgressKey from '../../storage/keys/WordProgressKey';
+import {chapterBoxMMKV} from '../../storage/MMKVInstance';
 
 export interface PerModeResult {
   mode1: number; // 0-100%
@@ -101,7 +101,7 @@ class PerModeCalculatorSingleton {
       totalCompletedWords: totalCompleted,
       totalWords: total,
       totalProgressPercent: Math.round((totalCompleted / total) * 100),
-      perModeCompleted: { m1Done, m2Done, m3Done, m4Done, m5Done },
+      perModeCompleted: {m1Done, m2Done, m3Done, m4Done, m5Done},
     };
   }
 
@@ -110,7 +110,7 @@ class PerModeCalculatorSingleton {
    * Input: { chapter_5: [12,45...], chapter_6: [...] }
    */
   calculateMultiChapters(
-    chapterWordMap: Record<number, number[]>
+    chapterWordMap: Record<number, number[]>,
   ): Record<number, PerModeResult> {
     const result: Record<number, PerModeResult> = {};
 

@@ -5,8 +5,8 @@
  */
 
 // Use require to avoid TS2693 with verbatimModuleSyntax in RN 0.73
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { MMKV } = require('react-native-mmkv');
+
+const {MMKV} = require('react-native-mmkv');
 
 // --- Encryption Keys (Production: Use react-native-keychain to store) ---
 const ENCRYPTION_KEYS = {
@@ -40,7 +40,10 @@ class MMKVFactory {
   }
 
   static getWordProgress(): any {
-    return this.getInstance('word-progress-mmkv', ENCRYPTION_KEYS.WORD_PROGRESS);
+    return this.getInstance(
+      'word-progress-mmkv',
+      ENCRYPTION_KEYS.WORD_PROGRESS,
+    );
   }
 
   static getChapterBox(): any {
@@ -56,7 +59,10 @@ class MMKVFactory {
   }
 
   static getDynamicTarget(): any {
-    return this.getInstance('dynamic-target-mmkv', ENCRYPTION_KEYS.DYNAMIC_TARGET);
+    return this.getInstance(
+      'dynamic-target-mmkv',
+      ENCRYPTION_KEYS.DYNAMIC_TARGET,
+    );
   }
 
   static getEvents(): any {
@@ -71,10 +77,22 @@ class MMKVFactory {
   }
 
   static debugAllCounts(): void {
-    console.log('[MMKV Debug] WordProgress Keys:', this.getWordProgress().getAllKeys().length);
-    console.log('[MMKV Debug] ChapterBox Keys:', this.getChapterBox().getAllKeys().length);
-    console.log('[MMKV Debug] TTSBrain Keys:', this.getTTSBrain().getAllKeys().length);
-    console.log('[MMKV Debug] DailyBank Keys:', this.getDailyBank().getAllKeys().length);
+    console.log(
+      '[MMKV Debug] WordProgress Keys:',
+      this.getWordProgress().getAllKeys().length,
+    );
+    console.log(
+      '[MMKV Debug] ChapterBox Keys:',
+      this.getChapterBox().getAllKeys().length,
+    );
+    console.log(
+      '[MMKV Debug] TTSBrain Keys:',
+      this.getTTSBrain().getAllKeys().length,
+    );
+    console.log(
+      '[MMKV Debug] DailyBank Keys:',
+      this.getDailyBank().getAllKeys().length,
+    );
   }
 }
 
@@ -87,4 +105,3 @@ export const eventsMMKV = MMKVFactory.getEvents();
 
 export const MMKVInstance = MMKVFactory;
 export default MMKVFactory;
-

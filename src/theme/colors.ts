@@ -57,111 +57,111 @@ export interface AppColors {
 export interface AppTheme {
   colors: AppColors;
   isDark: boolean;
-  name: "light" | "dark" | "system";
+  name: 'light' | 'dark' | 'system';
 }
 
 // Light Theme - Clean & Minimalist
 export const lightColors: AppColors = {
   // Primary - Dynamic, can be changed from Settings
-  primary: "#6750A4", // Material 3 Primary
-  primaryLight: "#E8DEF8",
-  primaryDark: "#4F378B",
-  primaryContainer: "#EADDFF",
-  onPrimary: "#FFFFFF",
+  primary: '#6750A4', // Material 3 Primary
+  primaryLight: '#E8DEF8',
+  primaryDark: '#4F378B',
+  primaryContainer: '#EADDFF',
+  onPrimary: '#FFFFFF',
 
   // Background
-  background: "#FFFBFE",
-  surface: "#FFFFFF",
-  surfaceVariant: "#E7E0EC",
-  onBackground: "#1C1B1F",
-  onSurface: "#1C1B1F",
-  onSurfaceVariant: "#49454F",
+  background: '#FFFBFE',
+  surface: '#FFFFFF',
+  surfaceVariant: '#E7E0EC',
+  onBackground: '#1C1B1F',
+  onSurface: '#1C1B1F',
+  onSurfaceVariant: '#49454F',
 
-  text: "#1C1B1F",
-  textSecondary: "#49454F",
-  textDisabled: "#79747E",
+  text: '#1C1B1F',
+  textSecondary: '#49454F',
+  textDisabled: '#79747E',
 
-  border: "#E7E0EC",
-  borderLight: "#F3EDF7",
-  divider: "#E7E0EC",
+  border: '#E7E0EC',
+  borderLight: '#F3EDF7',
+  divider: '#E7E0EC',
 
-  success: "#2E7D32",
-  successLight: "#E8F5E9",
-  error: "#BA1A1A",
-  errorLight: "#FFDAD6",
-  warning: "#F57F17",
-  warningLight: "#FFF8E1",
+  success: '#2E7D32',
+  successLight: '#E8F5E9',
+  error: '#BA1A1A',
+  errorLight: '#FFDAD6',
+  warning: '#F57F17',
+  warningLight: '#FFF8E1',
 
-  highlightYellow: "#FFEB3B", // TTS Highlight
-  highlightPrimaryGlow: "rgba(103, 80, 164, 0.15)",
-  highlightBackground: "#FFF9C4",
+  highlightYellow: '#FFEB3B', // TTS Highlight
+  highlightPrimaryGlow: 'rgba(103, 80, 164, 0.15)',
+  highlightBackground: '#FFF9C4',
 
-  greenProgress: "#4CAF50", // Drawer Green Fill
-  greenLight: "#E8F5E9",
-  bankGold: "#FFC107",
+  greenProgress: '#4CAF50', // Drawer Green Fill
+  greenLight: '#E8F5E9',
+  bankGold: '#FFC107',
 
-  neutralGray: "#888888", // Idle icon color
-  neutralLightGray: "#E0E0E0",
+  neutralGray: '#888888', // Idle icon color
+  neutralLightGray: '#E0E0E0',
 };
 
 // Dark Theme - Premium Dark
 export const darkColors: AppColors = {
-  primary: "#D0BCFF",
-  primaryLight: "#4F378B",
-  primaryDark: "#EADDFF",
-  primaryContainer: "#4F378B",
-  onPrimary: "#381E72",
+  primary: '#D0BCFF',
+  primaryLight: '#4F378B',
+  primaryDark: '#EADDFF',
+  primaryContainer: '#4F378B',
+  onPrimary: '#381E72',
 
-  background: "#1C1B1F",
-  surface: "#2B2930",
-  surfaceVariant: "#49454F",
-  onBackground: "#E6E0E9",
-  onSurface: "#E6E0E9",
-  onSurfaceVariant: "#CAC4D0",
+  background: '#1C1B1F',
+  surface: '#2B2930',
+  surfaceVariant: '#49454F',
+  onBackground: '#E6E0E9',
+  onSurface: '#E6E0E9',
+  onSurfaceVariant: '#CAC4D0',
 
-  text: "#E6E0E9",
-  textSecondary: "#CAC4D0",
-  textDisabled: "#938F99",
+  text: '#E6E0E9',
+  textSecondary: '#CAC4D0',
+  textDisabled: '#938F99',
 
-  border: "#49454F",
-  borderLight: "#36343B",
-  divider: "#49454F",
+  border: '#49454F',
+  borderLight: '#36343B',
+  divider: '#49454F',
 
-  success: "#81C784",
-  successLight: "#1B5E20",
-  error: "#FFB4AB",
-  errorLight: "#680003",
-  warning: "#FFB74D",
-  warningLight: "#E65100",
+  success: '#81C784',
+  successLight: '#1B5E20',
+  error: '#FFB4AB',
+  errorLight: '#680003',
+  warning: '#FFB74D',
+  warningLight: '#E65100',
 
-  highlightYellow: "#F9A825", // Dark mode yellow adjusted
-  highlightPrimaryGlow: "rgba(208, 188, 255, 0.2)",
-  highlightBackground: "#5D4037",
+  highlightYellow: '#F9A825', // Dark mode yellow adjusted
+  highlightPrimaryGlow: 'rgba(208, 188, 255, 0.2)',
+  highlightBackground: '#5D4037',
 
-  greenProgress: "#81C784",
-  greenLight: "#2E7D32",
-  bankGold: "#FFD54F",
+  greenProgress: '#81C784',
+  greenLight: '#2E7D32',
+  bankGold: '#FFD54F',
 
-  neutralGray: "#938F99",
-  neutralLightGray: "#36343B",
+  neutralGray: '#938F99',
+  neutralLightGray: '#36343B',
 };
 
 export const lightTheme: AppTheme = {
   colors: lightColors,
   isDark: false,
-  name: "light",
+  name: 'light',
 };
 
 export const darkTheme: AppTheme = {
   colors: darkColors,
   isDark: true,
-  name: "dark",
+  name: 'dark',
 };
 
 // Dynamic Primary Color Generator (From Settings)
 export const generateDynamicColors = (
   primaryHex: string,
-  isDark: boolean
+  isDark: boolean,
 ): AppColors => {
   const base = isDark ? darkColors : lightColors;
 
@@ -197,7 +197,7 @@ function adjustColor(hex: string, mix: number, lighten: number): string {
 
     const toHex = (c: number) => {
       const clamped = Math.max(0, Math.min(255, c));
-      return clamped.toString(16).padStart(2, "0");
+      return clamped.toString(16).padStart(2, '0');
     };
 
     return `#${toHex(adjust(r))}${toHex(adjust(g))}${toHex(adjust(b))}`;
@@ -208,17 +208,17 @@ function adjustColor(hex: string, mix: number, lighten: number): string {
 
 // Theme Selector (No Hardcode - Dynamic from MMKV)
 export const getTheme = (
-  themeName: "light" | "dark" | "system",
+  themeName: 'light' | 'dark' | 'system',
   systemIsDark: boolean = false,
-  customPrimary?: string
+  customPrimary?: string,
 ): AppTheme => {
   let isDark = false;
-  let name: "light" | "dark" | "system" = themeName;
+  let name: 'light' | 'dark' | 'system' = themeName;
 
-  if (themeName === "system") {
+  if (themeName === 'system') {
     isDark = systemIsDark;
   } else {
-    isDark = themeName === "dark";
+    isDark = themeName === 'dark';
   }
 
   const baseTheme = isDark ? darkTheme : lightTheme;

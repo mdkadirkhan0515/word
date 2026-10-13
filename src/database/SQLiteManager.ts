@@ -54,7 +54,7 @@ class SQLiteManagerSingleton {
           version: DATABASE_VERSION,
           displayName: DATABASE_DISPLAY_NAME,
           size: DATABASE_SIZE,
-          createFromLocation: '~myapp_offline.db', // Pre-populated if needed
+          // createFromLocation removed - using seeded default data
         });
 
         this.db = database;
@@ -127,9 +127,9 @@ class SQLiteManagerSingleton {
       );`,
 
       // Indexes for Performance (Batch Query Optimization)
-      `CREATE INDEX IF NOT EXISTS idx_word_chapter ON WordTable(chapter_id);`,
-      `CREATE INDEX IF NOT EXISTS idx_word_view ON WordTable(view_id);`,
-      `CREATE INDEX IF NOT EXISTS idx_word_display ON WordTable(display_word_id);`,
+      'CREATE INDEX IF NOT EXISTS idx_word_chapter ON WordTable(chapter_id);',
+      'CREATE INDEX IF NOT EXISTS idx_word_view ON WordTable(view_id);',
+      'CREATE INDEX IF NOT EXISTS idx_word_display ON WordTable(display_word_id);',
     ];
 
     for (const query of queries) {
@@ -147,9 +147,67 @@ class SQLiteManagerSingleton {
    * If ChapterTable is empty, insert 3 default chapters + sample words
    * This prevents HomeScreen empty and App stuck on splash
    */
+  public async forceSeedDefaultData(): Promise<void> {
+    const db = await this.getDB();
+    await this.seedDefaultDataIfNeeded(db);
+    // If still 0, delete and re-seed
+    try {
+      const [r] = await db.executeSql(
+        'SELECT COUNT(*) as count FROM ChapterTable;',
+      );
+      if (r.rows.item(0).count === 0) {
+        console.log(
+          '[SQLiteManager] Still 0 after seed, clearing and re-seeding...',
+        );
+        await db.executeSql('DELETE FROM ChapterTable;');
+        await db.executeSql('DELETE FROM WordTable;');
+        // Insert directly again
+        const defaultChapters = [
+          {
+            chapter_id: 1,
+            chapter_name: 'সহজ শব্দ',
+            total_words: 20,
+            unlocked_id: 1,
+            target_percentage: 50,
+          },
+          {
+            chapter_id: 2,
+            chapter_name: 'মাঝারি শব্দ',
+            total_words: 20,
+            unlocked_id: 0,
+            target_percentage: 60,
+          },
+          {
+            chapter_id: 3,
+            chapter_name: 'কঠিন শব্দ',
+            total_words: 20,
+            unlocked_id: 0,
+            target_percentage: 80,
+          },
+        ];
+        for (const ch of defaultChapters) {
+          await db.executeSql(
+            'INSERT OR REPLACE INTO ChapterTable (chapter_id, chapter_name, total_words, completed_words, unlocked_id, target_percentage) VALUES (?, ?, ?, 0, ?, ?);',
+            [
+              ch.chapter_id,
+              ch.chapter_name,
+              ch.total_words,
+              ch.unlocked_id,
+              ch.target_percentage,
+            ],
+          );
+        }
+      }
+    } catch (e) {
+      console.error('[SQLiteManager] forceSeed check failed', e);
+    }
+  }
+
   private async seedDefaultDataIfNeeded(db: SQLiteDatabase): Promise<void> {
     try {
-      const [result] = await db.executeSql('SELECT COUNT(*) as count FROM ChapterTable;');
+      const [result] = await db.executeSql(
+        'SELECT COUNT(*) as count FROM ChapterTable;',
+      );
       const count = result.rows.item(0).count as number;
 
       if (count === 0) {
@@ -157,44 +215,97 @@ class SQLiteManagerSingleton {
 
         // Default Chapters - শব্দ App
         const defaultChapters = [
-          { chapter_id: 1, chapter_name: 'সহজ শব্দ', total_words: 20, unlocked_id: 1, target_percentage: 50 },
-          { chapter_id: 2, chapter_name: 'মাঝারি শব্দ', total_words: 20, unlocked_id: 0, target_percentage: 60 },
-          { chapter_id: 3, chapter_name: 'কঠিন শব্দ', total_words: 20, unlocked_id: 0, target_percentage: 80 },
+          {
+            chapter_id: 1,
+            chapter_name: 'সহজ শব্দ',
+            total_words: 20,
+            unlocked_id: 1,
+            target_percentage: 50,
+          },
+          {
+            chapter_id: 2,
+            chapter_name: 'মাঝারি শব্দ',
+            total_words: 20,
+            unlocked_id: 0,
+            target_percentage: 60,
+          },
+          {
+            chapter_id: 3,
+            chapter_name: 'কঠিন শব্দ',
+            total_words: 20,
+            unlocked_id: 0,
+            target_percentage: 80,
+          },
         ];
 
         for (const ch of defaultChapters) {
           await db.executeSql(
             'INSERT OR IGNORE INTO ChapterTable (chapter_id, chapter_name, total_words, completed_words, unlocked_id, target_percentage) VALUES (?, ?, ?, 0, ?, ?);',
-            [ch.chapter_id, ch.chapter_name, ch.total_words, ch.unlocked_id, ch.target_percentage]
+            [
+              ch.chapter_id,
+              ch.chapter_name,
+              ch.total_words,
+              ch.unlocked_id,
+              ch.target_percentage,
+            ],
           );
         }
 
         // Sample Words for Chapter 1 (20 words)
         const sampleWords = [
-          'অভিজ্ঞতা', 'অর্জন', 'অনুভূতি', 'আলোচনা', 'উন্নতি',
-          'কল্পনা', 'জীবন', 'চিন্তা', 'দক্ষতা', 'পরিশ্রম',
-          'প্রচেষ্টা', 'বন্ধুত্ব', 'ভালোবাসা', 'মনোযোগ', 'যাত্রা',
-          'সাহস', 'স্বপ্ন', 'সফলতা', 'সময়', 'শিক্ষা'
+          'অভিজ্ঞতা',
+          'অর্জন',
+          'অনুভূতি',
+          'আলোচনা',
+          'উন্নতি',
+          'কল্পনা',
+          'জীবন',
+          'চিন্তা',
+          'দক্ষতা',
+          'পরিশ্রম',
+          'প্রচেষ্টা',
+          'বন্ধুত্ব',
+          'ভালোবাসা',
+          'মনোযোগ',
+          'যাত্রা',
+          'সাহস',
+          'স্বপ্ন',
+          'সফলতা',
+          'সময়',
+          'শিক্ষা',
         ];
 
         for (let i = 0; i < sampleWords.length; i++) {
           const word_id = 101 + i;
           await db.executeSql(
             'INSERT OR IGNORE INTO WordTable (word_id, display_word_id, chapter_id, chapter_name, content, view_id) VALUES (?, ?, ?, ?, ?, 0);',
-            [word_id, word_id, 1, 'সহজ শব্দ', JSON.stringify({ word: sampleWords[i], meaning: `অর্থ ${i+1}`, example: `উদাহরণ ${sampleWords[i]}` })]
+            [
+              word_id,
+              word_id,
+              1,
+              'সহজ শব্দ',
+              JSON.stringify({
+                word: sampleWords[i],
+                meaning: `অর্থ ${i + 1}`,
+                example: `উদাহরণ ${sampleWords[i]}`,
+              }),
+            ],
           );
         }
 
         // DailyBank initial row
-        await db.executeSql('INSERT OR IGNORE INTO DailyBank (id, total_balance, today_earned, last_updated) VALUES (1, 0, 0, CURRENT_DATE);');
+        await db.executeSql(
+          'INSERT OR IGNORE INTO DailyBank (id, total_balance, today_earned, last_updated) VALUES (1, 0, 0, CURRENT_DATE);',
+        );
 
-        console.log('[SQLiteManager] Default data seeded - 3 chapters, 20 words');
+        console.log(
+          '[SQLiteManager] Default data seeded - 3 chapters, 20 words',
+        );
       }
     } catch (e) {
       console.error('[SQLiteManager] Seed failed:', e);
     }
   }
-
 
   /**
    * Get DB Instance
@@ -223,7 +334,9 @@ class SQLiteManagerSingleton {
   /**
    * Transaction Wrapper - For Batch Operations
    */
-  async transaction(callback: (tx: Transaction) => Promise<void> | void): Promise<void> {
+  async transaction(
+    callback: (tx: Transaction) => Promise<void> | void,
+  ): Promise<void> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
       db.transaction(
@@ -241,7 +354,7 @@ class SQLiteManagerSingleton {
         },
         () => {
           resolve();
-        }
+        },
       );
     });
   }
@@ -272,4 +385,3 @@ class SQLiteManagerSingleton {
 
 export const SQLiteManager = SQLiteManagerSingleton.getInstance();
 export default SQLiteManager;
-

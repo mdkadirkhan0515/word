@@ -4,17 +4,17 @@
  * Provides instant MMKV read + auto recalculation
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import WordProgressKey from "../storage/keys/WordProgressKey";
-import ChapterEncapsulation from "../services/ProgressEngine/ChapterEncapsulation";
+import {useState, useEffect, useCallback, useMemo} from 'react';
+import WordProgressKey from '../storage/keys/WordProgressKey';
+import ChapterEncapsulation from '../services/ProgressEngine/ChapterEncapsulation';
 import PerModeCalculator, {
   PerModeResult,
-} from "../services/ProgressEngine/PerModeCalculator";
-import ChapterTable from "../database/ChapterTable";
+} from '../services/ProgressEngine/PerModeCalculator';
+import ChapterTable from '../database/ChapterTable';
 import ChapterExecutive, {
   ExecutiveResult,
-} from "../services/ProgressEngine/Guards/ChapterExecutive";
-import { WordModeProgress } from "../types/progress.types";
+} from '../services/ProgressEngine/Guards/ChapterExecutive';
+import {WordModeProgress} from '../types/progress.types';
 
 export interface UseProgressOptions {
   chapterId: number;
@@ -46,10 +46,10 @@ export const useProgress = ({
     totalCompletedWords: 0,
     totalWords: wordIds.length,
     totalProgressPercent: 0,
-    perModeCompleted: { m1Done: 0, m2Done: 0, m3Done: 0, m4Done: 0, m5Done: 0 },
+    perModeCompleted: {m1Done: 0, m2Done: 0, m3Done: 0, m4Done: 0, m5Done: 0},
   });
   const [chapterBox, setChapterBox] = useState(() =>
-    ChapterEncapsulation.getChapterBox(chapterId)
+    ChapterEncapsulation.getChapterBox(chapterId),
   );
   const [executiveResult, setExecutiveResult] =
     useState<ExecutiveResult | null>(null);
@@ -74,7 +74,7 @@ export const useProgress = ({
       const exec = await ChapterExecutive.check(chapterId);
       setExecutiveResult(exec);
     } catch (error) {
-      console.error("[useProgress] Refresh failed:", error);
+      console.error('[useProgress] Refresh failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +109,7 @@ export const useProgress = ({
 // Hook for single word progress
 export const useWordProgress = (wordId: number) => {
   const [progress, setProgress] = useState(() =>
-    WordProgressKey.getWordProgress(wordId)
+    WordProgressKey.getWordProgress(wordId),
   );
 
   const refresh = useCallback(() => {
@@ -122,10 +122,10 @@ export const useWordProgress = (wordId: number) => {
       setProgress(newProgress);
       return newProgress;
     },
-    [wordId]
+    [wordId],
   );
 
-  return { progress, refresh, increment };
+  return {progress, refresh, increment};
 };
 
 export default useProgress;

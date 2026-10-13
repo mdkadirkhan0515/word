@@ -4,7 +4,7 @@
  * Implements 4 Keys from Architecture: Resume Position, Current State, Active Mode, Background Enabled
  */
 
-import { ttsBrainMMKV } from '../MMKVInstance';
+import {ttsBrainMMKV} from '../MMKVInstance';
 
 export const TTS_MMKV_KEYS = {
   RESUME_POSITION: 'tts_resume_position', // { word_id, char_index }
@@ -35,7 +35,9 @@ class TTSStateManager {
 
   getResumePosition(): TTSResumePosition | null {
     const raw = ttsBrainMMKV.getString(TTS_MMKV_KEYS.RESUME_POSITION);
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
     try {
       return JSON.parse(raw) as TTSResumePosition;
     } catch {
@@ -55,7 +57,10 @@ class TTSStateManager {
   }
 
   getCurrentState(): TTSStateValue {
-    return (ttsBrainMMKV.getString(TTS_MMKV_KEYS.CURRENT_STATE) as TTSStateValue) || 'STOPPED';
+    return (
+      (ttsBrainMMKV.getString(TTS_MMKV_KEYS.CURRENT_STATE) as TTSStateValue) ||
+      'STOPPED'
+    );
   }
 
   // --- Active Mode Tracker (For Global Stop) ---
@@ -64,7 +69,10 @@ class TTSStateManager {
   }
 
   getActiveMode(): TTSModeValue | null {
-    return (ttsBrainMMKV.getString(TTS_MMKV_KEYS.ACTIVE_MODE) as TTSModeValue) || null;
+    return (
+      (ttsBrainMMKV.getString(TTS_MMKV_KEYS.ACTIVE_MODE) as TTSModeValue) ||
+      null
+    );
   }
 
   // --- Background Audio Switch (Settings) ---
@@ -144,4 +152,3 @@ class TTSStateManager {
 
 export const TTSStateKey = new TTSStateManager();
 export default TTSStateKey;
-

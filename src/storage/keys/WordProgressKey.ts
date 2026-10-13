@@ -5,8 +5,8 @@
  * Total: 20 Words * 5 Modes = 100 Keys in MMKV
  */
 
-import { wordProgressMMKV } from "../MMKVInstance";
-import { checkWordCompletionAndTrigger } from "../../database/queries/UnlockQuery";
+import {wordProgressMMKV} from '../MMKVInstance';
+import {checkWordCompletionAndTrigger} from '../../database/queries/UnlockQuery';
 
 export type ModeNumber = 1 | 2 | 3 | 4 | 5;
 
@@ -22,8 +22,8 @@ export interface WordModeProgress {
 }
 
 class WordProgressManager {
-  private readonly KEY_PREFIX = "word";
-  private readonly MODE_PREFIX = "mode";
+  private readonly KEY_PREFIX = 'word';
+  private readonly MODE_PREFIX = 'mode';
 
   /**
    * Generate Key: word_156_mode_1
@@ -47,7 +47,7 @@ class WordProgressManager {
   async incrementMode(
     word_id: number,
     mode: ModeNumber,
-    incrementBy: number = 1
+    incrementBy: number = 1,
   ): Promise<WordModeProgress> {
     const key = this.getKey(word_id, mode);
     const current = wordProgressMMKV.getNumber(key) || 0;
@@ -61,8 +61,8 @@ class WordProgressManager {
     // Background Trigger: Check if all 5 >0 => view_id=1
     if (progress.isCompleted) {
       // Non-blocking background call
-      checkWordCompletionAndTrigger(word_id).catch((err) =>
-        console.error("[WordProgress] Trigger failed:", err)
+      checkWordCompletionAndTrigger(word_id).catch(err =>
+        console.error('[WordProgress] Trigger failed:', err),
       );
     }
 
@@ -88,9 +88,7 @@ class WordProgressManager {
     const m4 = this.getModeCount(word_id, 4);
     const m5 = this.getModeCount(word_id, 5);
 
-    const completedModesCount = [m1, m2, m3, m4, m5].filter(
-      (v) => v > 0
-    ).length;
+    const completedModesCount = [m1, m2, m3, m4, m5].filter(v => v > 0).length;
     const isCompleted = m1 > 0 && m2 > 0 && m3 > 0 && m4 > 0 && m5 > 0;
 
     return {
@@ -110,7 +108,7 @@ class WordProgressManager {
    * Optimized: Single Loop
    */
   getBulkProgress(wordIds: number[]): WordModeProgress[] {
-    return wordIds.map((id) => this.getWordProgress(id));
+    return wordIds.map(id => this.getWordProgress(id));
   }
 
   /**
@@ -275,18 +273,18 @@ class WordProgressManager {
         stage1[`m${mode}` as keyof typeof stage1].push(wordId);
       } else if (missingCount === 2) {
         // Stage 2: Medium
-        missingModes.forEach((m) =>
-          stage2[`m${m}` as keyof typeof stage2].push(wordId)
+        missingModes.forEach(m =>
+          stage2[`m${m}` as keyof typeof stage2].push(wordId),
         );
       } else if (missingCount === 3) {
         // Stage 3: Deep Study
-        missingModes.forEach((m) =>
-          stage3[`m${m}` as keyof typeof stage3].push(wordId)
+        missingModes.forEach(m =>
+          stage3[`m${m}` as keyof typeof stage3].push(wordId),
         );
       } else if (missingCount === 4) {
         // Stage 4: Weakness Remover - Most neglected
-        missingModes.forEach((m) =>
-          stage4[`m${m}` as keyof typeof stage4].push(wordId)
+        missingModes.forEach(m =>
+          stage4[`m${m}` as keyof typeof stage4].push(wordId),
         );
       }
     }
@@ -313,8 +311,8 @@ class WordProgressManager {
    * Debug: Get all 100 keys for a chapter (Example)
    */
   debugChapterKeys(wordIds: number[]): void {
-    console.log("=== 100 Key Example (20 Words * 5 Modes) ===");
-    wordIds.slice(0, 4).forEach((id) => {
+    console.log('=== 100 Key Example (20 Words * 5 Modes) ===');
+    wordIds.slice(0, 4).forEach(id => {
       console.log(`word_${id}_mode_1 = ${this.getModeCount(id, 1)}`);
       console.log(`word_${id}_mode_2 = ${this.getModeCount(id, 2)}`);
       console.log(`word_${id}_mode_3 = ${this.getModeCount(id, 3)}`);

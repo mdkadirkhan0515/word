@@ -5,7 +5,7 @@
  * Dependencies: @react-native-material/core theme context
  */
 
-import { StyleSheet, TextStyle, ViewStyle } from "react-native";
+import {StyleSheet, TextStyle, ViewStyle} from 'react-native';
 
 // --- Theme Interface (No Hardcode) ---
 export interface ThemeColors {
@@ -25,20 +25,20 @@ export interface HighlightState {
   word_id: number | null;
   startChar: number;
   endChar: number;
-  mode: "m1" | "m2" | "m3" | "m4" | "m5" | null;
+  mode: 'm1' | 'm2' | 'm3' | 'm4' | 'm5' | null;
 }
 
 // Default fallback (Will be overridden by theme context)
 const FALLBACK_THEME: ThemeColors = {
-  primary: "#6750A4",
-  primaryLight: "#E8DEF8",
-  background: "#FFFBFE",
-  surface: "#FFFFFF",
-  text: "#1C1B1F",
-  textSecondary: "#49454F",
-  border: "#E7E0EC",
-  highlightYellow: "#FFEB3B",
-  highlightPrimaryGlow: "rgba(103, 80, 164, 0.15)",
+  primary: '#6750A4',
+  primaryLight: '#E8DEF8',
+  background: '#FFFBFE',
+  surface: '#FFFFFF',
+  text: '#1C1B1F',
+  textSecondary: '#49454F',
+  border: '#E7E0EC',
+  highlightYellow: '#FFEB3B',
+  highlightPrimaryGlow: 'rgba(103, 80, 164, 0.15)',
 };
 
 class HighlightingEngineSingleton {
@@ -67,7 +67,7 @@ class HighlightingEngineSingleton {
    * Called from ThemeContext or Material Core provider
    */
   setTheme(theme: Partial<ThemeColors>): void {
-    this.theme = { ...this.theme, ...theme };
+    this.theme = {...this.theme, ...theme};
   }
 
   getTheme(): ThemeColors {
@@ -80,12 +80,12 @@ class HighlightingEngineSingleton {
   subscribe(listener: (state: HighlightState) => void): () => void {
     this.listeners.push(listener);
     return () => {
-      this.listeners = this.listeners.filter((l) => l !== listener);
+      this.listeners = this.listeners.filter(l => l !== listener);
     };
   }
 
   private notify(): void {
-    this.listeners.forEach((listener) => listener(this.currentState));
+    this.listeners.forEach(listener => listener(this.currentState));
   }
 
   /**
@@ -95,7 +95,7 @@ class HighlightingEngineSingleton {
     word_id: number,
     startChar: number,
     endChar: number,
-    mode: HighlightState["mode"]
+    mode: HighlightState['mode'],
   ): void {
     this.currentState = {
       isHighlighted: true,
@@ -144,13 +144,13 @@ class HighlightingEngineSingleton {
 
     return {
       borderRadius: outerRadius,
-      overflow: "hidden", // Smooth Corners for Android
+      overflow: 'hidden', // Smooth Corners for Android
       backgroundColor: this.theme.surface,
       borderWidth: isHighlighted ? 1.5 : 1,
       borderColor: isHighlighted ? this.theme.primary : this.theme.border,
       // Visual Depth with Primary Shade
-      shadowColor: isHighlighted ? this.theme.primary : "#000",
-      shadowOffset: { width: 0, height: isHighlighted ? 4 : 2 },
+      shadowColor: isHighlighted ? this.theme.primary : '#000',
+      shadowOffset: {width: 0, height: isHighlighted ? 4 : 2},
       shadowOpacity: isHighlighted ? 0.15 : 0.06,
       shadowRadius: isHighlighted ? 8 : 4,
       elevation: isHighlighted ? 6 : 2,
@@ -168,7 +168,7 @@ class HighlightingEngineSingleton {
     if (!isHighlightedWord) {
       return {
         color: this.theme.text,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       };
     }
 
@@ -179,7 +179,7 @@ class HighlightingEngineSingleton {
       paddingHorizontal: 2,
       // Primary glow effect via text shadow
       textShadowColor: this.theme.highlightPrimaryGlow,
-      textShadowOffset: { width: 0, height: 0 },
+      textShadowOffset: {width: 0, height: 0},
       textShadowRadius: 8,
     } as TextStyle;
   }
@@ -198,25 +198,25 @@ class HighlightingEngineSingleton {
    */
   getHighlightedSegments(
     fullText: string,
-    highlightState: HighlightState
-  ): Array<{ text: string; highlighted: boolean }> {
+    highlightState: HighlightState,
+  ): Array<{text: string; highlighted: boolean}> {
     if (!highlightState.isHighlighted || highlightState.word_id === null) {
-      return [{ text: fullText, highlighted: false }];
+      return [{text: fullText, highlighted: false}];
     }
 
-    const { startChar, endChar } = highlightState;
+    const {startChar, endChar} = highlightState;
 
     if (startChar >= fullText.length) {
-      return [{ text: fullText, highlighted: false }];
+      return [{text: fullText, highlighted: false}];
     }
 
     const safeEnd = Math.min(endChar, fullText.length);
 
     return [
-      { text: fullText.substring(0, startChar), highlighted: false },
-      { text: fullText.substring(startChar, safeEnd), highlighted: true },
-      { text: fullText.substring(safeEnd), highlighted: false },
-    ].filter((seg) => seg.text.length > 0);
+      {text: fullText.substring(0, startChar), highlighted: false},
+      {text: fullText.substring(startChar, safeEnd), highlighted: true},
+      {text: fullText.substring(safeEnd), highlighted: false},
+    ].filter(seg => seg.text.length > 0);
   }
 
   /**
@@ -240,7 +240,7 @@ export const createHighlightStyles = (theme: ThemeColors) =>
   StyleSheet.create({
     cardContainer: {
       borderRadius: 16,
-      overflow: "hidden",
+      overflow: 'hidden',
       backgroundColor: theme.surface,
       borderWidth: 1,
       borderColor: theme.border,
@@ -252,7 +252,7 @@ export const createHighlightStyles = (theme: ThemeColors) =>
       borderColor: theme.primary,
       borderWidth: 1.5,
       shadowColor: theme.primary,
-      shadowOffset: { width: 0, height: 4 },
+      shadowOffset: {width: 0, height: 4},
       shadowOpacity: 0.15,
       shadowRadius: 8,
       elevation: 6,
@@ -271,6 +271,6 @@ export const createHighlightStyles = (theme: ThemeColors) =>
     },
     innerButton: {
       borderRadius: 12, // Inner = Outer - Padding (16 - 4)
-      overflow: "hidden",
+      overflow: 'hidden',
     },
   });

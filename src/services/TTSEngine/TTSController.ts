@@ -5,10 +5,10 @@
  * Architecture Lock: No Emoji, No Hardcode Theme, Zero Lag
  */
 
-import Tts, { TtsError } from 'react-native-tts';
+import Tts, {TtsError} from 'react-native-tts';
 // Use require for MMKV to avoid TS2693 verbatimModuleSyntax issue
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { MMKV } = require('react-native-mmkv');
+
+const {MMKV} = require('react-native-mmkv');
 
 // --- MMKV Instance (Central Brain) ---
 export const ttsMMKV = new MMKV({
@@ -51,7 +51,9 @@ class TTSControllerSingleton {
    * Initialize TTS Engine
    */
   async initialize(): Promise<void> {
-    if (this.isInitialized) return;
+    if (this.isInitialized) {
+      return;
+    }
 
     try {
       // Timeout wrapper for getInitStatus - some devices hang
@@ -62,10 +64,12 @@ class TTSControllerSingleton {
 
       await Promise.race([
         initStatusPromise,
-        new Promise(resolve => setTimeout(() => {
-          console.log('[TTSController] getInitStatus timeout, continuing');
-          resolve(null);
-        }, 1500))
+        new Promise(resolve =>
+          setTimeout(() => {
+            console.log('[TTSController] getInitStatus timeout, continuing');
+            resolve(null);
+          }, 1500),
+        ),
       ]);
 
       try {
@@ -83,14 +87,20 @@ class TTSControllerSingleton {
         Tts.addEventListener('tts-start', this.onTtsStart);
         Tts.addEventListener('tts-finish', this.onTtsFinish);
         Tts.addEventListener('tts-cancel', this.onTtsCancel);
-        (Tts as any).addEventListener('tts-progress', this.onTtsProgress as any);
+        (Tts as any).addEventListener(
+          'tts-progress',
+          this.onTtsProgress as any,
+        );
       } catch {}
 
       this.isInitialized = true;
       this.setState('STOPPED');
       console.log('[TTSController] Initialized');
     } catch (error) {
-      console.error('[TTSController] Init Failed, but marking as initialized:', error);
+      console.error(
+        '[TTSController] Init Failed, but marking as initialized:',
+        error,
+      );
       this.isInitialized = true;
       this.setState('STOPPED');
     }
@@ -126,7 +136,9 @@ class TTSControllerSingleton {
 
   getResumePosition(): ResumePosition | null {
     const raw = ttsMMKV.getString(TTS_KEYS.RESUME_POSITION);
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
     try {
       return JSON.parse(raw) as ResumePosition;
     } catch {
@@ -152,7 +164,14 @@ class TTSControllerSingleton {
   /**
    * Global Stop Engine - Navigation Change / Mode Switch
    */
-  async stopImmediately(reason: 'NAVIGATION_EXIT' | 'MODE_SWITCH' | 'MANUAL_STOP' | 'AUTO_CONFLICT' | 'USER_STOP'): Promise<void> {
+  async stopImmediately(
+    reason:
+      | 'NAVIGATION_EXIT'
+      | 'MODE_SWITCH'
+      | 'MANUAL_STOP'
+      | 'AUTO_CONFLICT'
+      | 'USER_STOP',
+  ): Promise<void> {
     try {
       await Tts.stop();
       this.setState('STOPPED');
@@ -173,7 +192,9 @@ class TTSControllerSingleton {
    * @param mode Current active mode
    */
   async play(text: string, word_id: number, mode: TTSMode): Promise<void> {
-    if (!text || text.trim().length === 0) return;
+    if (!text || text.trim().length === 0) {
+      return;
+    }
 
     await this.initialize();
     this.setActiveMode(mode);
@@ -182,12 +203,18 @@ class TTSControllerSingleton {
     let textToSpeak = text;
 
     // Character-level Resume Logic (Zero Loss Mechanics)
-    if (existingPos && existingPos.word_id === word_id && existingPos.char_index > 0) {
+    if (
+      existingPos &&
+      existingPos.word_id === word_id &&
+      existingPos.char_index > 0
+    ) {
       textToSpeak = text.substring(existingPos.char_index);
-      console.log(`[TTSController] Resuming word_id ${word_id} from char_index ${existingPos.char_index}`);
+      console.log(
+        `[TTSController] Resuming word_id ${word_id} from char_index ${existingPos.char_index}`,
+      );
     } else {
       // New word, reset position
-      this.setResumePosition({ word_id, char_index: 0 });
+      this.setResumePosition({word_id, char_index: 0});
     }
 
     if (!textToSpeak.trim()) {
@@ -222,7 +249,9 @@ class TTSControllerSingleton {
         char_index: currentCharIndex,
       });
       this.setState('PAUSED');
-      console.log(`[TTSController] Paused at word_id ${word_id}, char ${currentCharIndex}`);
+      console.log(
+        `[TTSController] Paused at word_id ${word_id}, char ${currentCharIndex}`,
+      );
     } catch (error) {
       console.error('[TTSController] Pause Failed:', error);
     }
@@ -241,11 +270,14 @@ class TTSControllerSingleton {
     await this.play(remaining, word_id, this.getActiveMode() || 'm1');
   }
 
-
   /**
    * Play Sequential Word for AutoPlayEngine
    */
-  async playSequentialWord(word_id: number, content: string, mode: TTSMode): Promise<void> {
+  async playSequentialWord(
+    word_id: number,
+    content: string,
+    mode: TTSMode,
+  ): Promise<void> {
     await this.play(content, word_id, mode);
   }
 
@@ -275,7 +307,7 @@ class TTSControllerSingleton {
       // Auto is running, manual came - pause auto
       await this.pause(
         ttsMMKV.getNumber(TTS_KEYS.CURRENT_WORD_ID) || 0,
-        this.getResumePosition()?.char_index || 0
+        this.getResumePosition()?.char_index || 0,
       );
       console.log('[TTSController] Auto paused for Manual');
     }
@@ -301,12 +333,17 @@ class TTSControllerSingleton {
     this.setState('STOPPED');
   };
 
-  private onTtsProgress = (event: { utteranceId: string; location: number; length: number }) => {
+  private onTtsProgress = (event: {
+    utteranceId: string;
+    location: number;
+    length: number;
+  }) => {
     // Real-time char tracking for precise resume
     const wordId = ttsMMKV.getNumber(TTS_KEYS.CURRENT_WORD_ID);
     if (wordId && event.location !== undefined) {
       const prev = this.getResumePosition() as any;
-      const baseIndex = prev && (prev as any).word_id === wordId ? (prev as any).char_index : 0;
+      const baseIndex =
+        prev && (prev as any).word_id === wordId ? (prev as any).char_index : 0;
       // Save incremental progress (throttled to avoid MMKV overload)
       if (event.location % 5 === 0) {
         this.setResumePosition({
@@ -331,4 +368,3 @@ class TTSControllerSingleton {
 
 export const TTSController = TTSControllerSingleton.getInstance();
 export default TTSController;
-

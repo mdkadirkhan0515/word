@@ -4,10 +4,10 @@
  * No Lag, Smooth Drag, Save Button Clears Box Manually
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import {View, Text, TextInput, Pressable, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ttsBrainMMKV } from '../../storage/MMKVInstance';
+import {ttsBrainMMKV} from '../../storage/MMKVInstance';
 import TTSController from '../../services/TTSEngine/TTSController';
 import TTSStateKey from '../../storage/keys/TTSStateKey';
 import Tts from 'react-native-tts';
@@ -57,24 +57,28 @@ export const TTSControlSlider: React.FC = () => {
   // Slider rendered as custom draggable (no external slider lib to avoid lag)
   const SliderTrack = () => {
     const trackWidth = 280; // Fixed track width
-    const markerPosition = (speechRate - 0.1) / 0.9 * trackWidth; // 0.1-1.0 range
+    const markerPosition = ((speechRate - 0.1) / 0.9) * trackWidth; // 0.1-1.0 range
 
     return (
       <View style={styles.sliderContainer}>
         <View style={styles.sliderTrack}>
-          <View style={[styles.sliderFill, { width: markerPosition }]} />
-          <View style={[styles.sliderMarker, { left: markerPosition - 10 }]} />
+          <View style={[styles.sliderFill, {width: markerPosition}]} />
+          <View style={[styles.sliderMarker, {left: markerPosition - 10}]} />
         </View>
 
         {/* Touch areas for drag simulation - 3 buttons for simplicity but smooth */}
         <View style={styles.sliderControls}>
-          <Pressable onPress={() => handleRateChange(speechRate - 0.05)} style={styles.sliderButton}>
+          <Pressable
+            onPress={() => handleRateChange(speechRate - 0.05)}
+            style={styles.sliderButton}>
             <Icon name="minus" size={18} color="#49454F" />
           </Pressable>
 
           <Text style={styles.rateText}>{speechRate.toFixed(2)}x</Text>
 
-          <Pressable onPress={() => handleRateChange(speechRate + 0.05)} style={styles.sliderButton}>
+          <Pressable
+            onPress={() => handleRateChange(speechRate + 0.05)}
+            style={styles.sliderButton}>
             <Icon name="plus" size={18} color="#49454F" />
           </Pressable>
         </View>
@@ -92,7 +96,9 @@ export const TTSControlSlider: React.FC = () => {
           <Icon name="speedometer" size={20} color="#6750A4" />
           <Text style={styles.controlLabel}>স্পিচ রেট / পিচ</Text>
         </View>
-        <Text style={styles.controlDesc}>ডান থেকে বামে ড্র্যাগ করুন - কোনো ল্যাগ ছাড়া</Text>
+        <Text style={styles.controlDesc}>
+          ডান থেকে বামে ড্র্যাগ করুন - কোনো ল্যাগ ছাড়া
+        </Text>
         <SliderTrack />
       </View>
 
@@ -102,7 +108,9 @@ export const TTSControlSlider: React.FC = () => {
           <Icon name="timer-outline" size={20} color="#6750A4" />
           <Text style={styles.controlLabel}>টাইম গ্যাপ (Delay)</Text>
         </View>
-        <Text style={styles.controlDesc}>একটি কন্টেন্ট শেষ হওয়ার পর পরবর্তী কন্টেন্টের গ্যাপ</Text>
+        <Text style={styles.controlDesc}>
+          একটি কন্টেন্ট শেষ হওয়ার পর পরবর্তী কন্টেন্টের গ্যাপ
+        </Text>
 
         <View style={styles.gapContainer}>
           <View style={styles.inputContainer}>
@@ -117,7 +125,12 @@ export const TTSControlSlider: React.FC = () => {
             <Text style={styles.inputUnit}>ms</Text>
           </View>
 
-          <Pressable onPress={handleGapSave} style={({ pressed }) => [styles.saveButton, pressed && { opacity: 0.7 }]}>
+          <Pressable
+            onPress={handleGapSave}
+            style={({pressed}) => [
+              styles.saveButton,
+              pressed && {opacity: 0.7},
+            ]}>
             <Icon name="content-save-outline" size={18} color="#FFFFFF" />
             <Text style={styles.saveButtonText}>সেভ</Text>
           </Pressable>
@@ -192,7 +205,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
@@ -268,4 +281,3 @@ const styles = StyleSheet.create({
 });
 
 export default TTSControlSlider;
-

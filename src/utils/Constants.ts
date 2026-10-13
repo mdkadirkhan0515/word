@@ -4,29 +4,29 @@
  */
 
 export const APP_CONSTANTS = {
-  APP_NAME: "Word Learning",
-  VERSION: "1.0.0",
-  BUILD_NUMBER: "100",
+  APP_NAME: 'Word Learning',
+  VERSION: '1.0.0',
+  BUILD_NUMBER: '100',
 
   // MMKV IDs
   MMKV_IDS: {
-    WORD_PROGRESS: "word-progress-mmkv",
-    CHAPTER_BOX: "chapter-box-mmkv",
-    TTS_BRAIN: "tts-central-brain",
-    DAILY_BANK: "daily-bank-mmkv",
-    DYNAMIC_TARGET: "dynamic-target-mmkv",
-    EVENTS: "chapter-events-mmkv",
+    WORD_PROGRESS: 'word-progress-mmkv',
+    CHAPTER_BOX: 'chapter-box-mmkv',
+    TTS_BRAIN: 'tts-central-brain',
+    DAILY_BANK: 'daily-bank-mmkv',
+    DYNAMIC_TARGET: 'dynamic-target-mmkv',
+    EVENTS: 'chapter-events-mmkv',
   },
 
   // Database
   DB: {
-    NAME: "word_learning.db",
+    NAME: 'word_learning.db',
     VERSION: 1,
     TABLES: {
-      WORD_TABLE: "WordTable",
-      CHAPTER_TABLE: "ChapterTable",
-      DAILY_BANK: "DailyBank",
-      MANIFESTO_TABLE: "ManifestoTable",
+      WORD_TABLE: 'WordTable',
+      CHAPTER_TABLE: 'ChapterTable',
+      DAILY_BANK: 'DailyBank',
+      MANIFESTO_TABLE: 'ManifestoTable',
     },
   },
 
@@ -97,43 +97,43 @@ export const APP_CONSTANTS = {
 
   // Theme
   THEME: {
-    LIGHT: "light" as const,
-    DARK: "dark" as const,
-    SYSTEM: "system" as const,
+    LIGHT: 'light' as const,
+    DARK: 'dark' as const,
+    SYSTEM: 'system' as const,
   },
 
   // Language
   LANGUAGE: {
-    BENGALI: "bengali" as const,
-    ENGLISH: "english" as const,
-    SYSTEM: "system" as const,
+    BENGALI: 'bengali' as const,
+    ENGLISH: 'english' as const,
+    SYSTEM: 'system' as const,
   },
 } as const;
 
 export const STORAGE_KEYS = {
   // TTS
-  TTS_RESUME_POSITION: "tts_resume_position",
-  TTS_CURRENT_STATE: "tts_current_state",
-  ACTIVE_TTS_MODE: "active_tts_mode",
-  TTS_BACKGROUND_ENABLED: "tts_background_enabled",
-  TTS_RATE: "tts_speech_rate",
-  TTS_GAP: "tts_time_gap",
+  TTS_RESUME_POSITION: 'tts_resume_position',
+  TTS_CURRENT_STATE: 'tts_current_state',
+  ACTIVE_TTS_MODE: 'active_tts_mode',
+  TTS_BACKGROUND_ENABLED: 'tts_background_enabled',
+  TTS_RATE: 'tts_speech_rate',
+  TTS_GAP: 'tts_time_gap',
 
   // Progress
-  COMPLETED_EVENT_CARDS: "completed_event_cards",
-  COMPLETED_EVENT_STAGES: "completed_event_stages",
-  LAST_EVENT_RESET_DATE: "last_event_reset_date",
+  COMPLETED_EVENT_CARDS: 'completed_event_cards',
+  COMPLETED_EVENT_STAGES: 'completed_event_stages',
+  LAST_EVENT_RESET_DATE: 'last_event_reset_date',
 
   // Bank
-  DAILY_BANK_TOTAL: "daily_bank_total_balance",
-  DAILY_BANK_TODAY: "daily_bank_today_earned",
-  DAILY_BANK_LIFETIME_EARNED: "daily_bank_lifetime_earned",
-  DAILY_BANK_LIFETIME_SPENT: "daily_bank_lifetime_spent",
+  DAILY_BANK_TOTAL: 'daily_bank_total_balance',
+  DAILY_BANK_TODAY: 'daily_bank_today_earned',
+  DAILY_BANK_LIFETIME_EARNED: 'daily_bank_lifetime_earned',
+  DAILY_BANK_LIFETIME_SPENT: 'daily_bank_lifetime_spent',
 
   // Theme & Settings
-  APP_THEME: "app_theme",
-  APP_LANGUAGE: "app_language",
-  APP_FONT_SIZE: "app_font_size",
+  APP_THEME: 'app_theme',
+  APP_LANGUAGE: 'app_language',
+  APP_FONT_SIZE: 'app_font_size',
 } as const;
 
 export default APP_CONSTANTS;

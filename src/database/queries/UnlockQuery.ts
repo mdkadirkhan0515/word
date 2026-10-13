@@ -7,7 +7,11 @@
 import SQLiteManager from '../SQLiteManager';
 import WordTable from '../WordTable';
 import ChapterTable from '../ChapterTable';
-import MMKVFactory, { wordProgressMMKV, dailyBankMMKV, eventsMMKV } from '../../storage/MMKVInstance';
+import MMKVFactory, {
+  wordProgressMMKV,
+  dailyBankMMKV,
+  eventsMMKV,
+} from '../../storage/MMKVInstance';
 
 // MMKV Instance for Progress Check
 const progressMMKV = wordProgressMMKV;
@@ -26,7 +30,9 @@ export interface WordCompletionCheck {
  * Check if a single word has completed all 5 modes
  * Logic from Architecture: word_156_mode_1 >0 && ... && mode_5>0 => view_id=1
  */
-export function checkWordCompletionFromMMKV(word_id: number): WordCompletionCheck {
+export function checkWordCompletionFromMMKV(
+  word_id: number,
+): WordCompletionCheck {
   const m1 = progressMMKV.getNumber(`word_${word_id}_mode_1`) || 0;
   const m2 = progressMMKV.getNumber(`word_${word_id}_mode_2`) || 0;
   const m3 = progressMMKV.getNumber(`word_${word_id}_mode_3`) || 0;
@@ -50,7 +56,9 @@ export function checkWordCompletionFromMMKV(word_id: number): WordCompletionChec
  * Background Trigger - Called on every mode click
  * Architecture: checkWordCompletionAndTrigger(wordId)
  */
-export async function checkWordCompletionAndTrigger(wordId: number): Promise<boolean> {
+export async function checkWordCompletionAndTrigger(
+  wordId: number,
+): Promise<boolean> {
   const check = checkWordCompletionFromMMKV(wordId);
 
   if (!check.isCompleted) {
@@ -61,7 +69,9 @@ export async function checkWordCompletionAndTrigger(wordId: number): Promise<boo
   const updated = await updateDatabaseViewId(wordId, 1);
 
   if (updated) {
-    console.log(`[UnlockQuery] Word ${wordId} 5 modes complete! SQLite view_id=1`);
+    console.log(
+      `[UnlockQuery] Word ${wordId} 5 modes complete! SQLite view_id=1`,
+    );
     // Also trigger chapter progress re-check
     await onWordCompletedTriggerChapterCheck(wordId);
   }
@@ -73,24 +83,33 @@ export async function checkWordCompletionAndTrigger(wordId: number): Promise<boo
  * Direct DB Update: UPDATE WordTable SET view_id = 1 WHERE word_id = ?
  * Safe with existence check to avoid overload
  */
-export async function updateDatabaseViewId(wordId: number, viewId: 0 | 1): Promise<boolean> {
+export async function updateDatabaseViewId(
+  wordId: number,
+  viewId: 0 | 1,
+): Promise<boolean> {
   try {
     // Prevent unnecessary write if already 1
     if (viewId === 1) {
-      const [existing] = await SQLiteManager.executeSql('SELECT view_id FROM WordTable WHERE word_id = ?;', [wordId]);
+      const [existing] = await SQLiteManager.executeSql(
+        'SELECT view_id FROM WordTable WHERE word_id = ?;',
+        [wordId],
+      );
       if (existing.rows.length > 0 && existing.rows.item(0).view_id === 1) {
         return false;
       }
     }
 
-    await SQLiteManager.executeSql('UPDATE WordTable SET view_id = ?, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;', [
-      viewId,
-      wordId,
-    ]);
+    await SQLiteManager.executeSql(
+      'UPDATE WordTable SET view_id = ?, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;',
+      [viewId, wordId],
+    );
 
     return true;
   } catch (error) {
-    console.error(`[UnlockQuery] updateDatabaseViewId failed for ${wordId}:`, error);
+    console.error(
+      `[UnlockQuery] updateDatabaseViewId failed for ${wordId}:`,
+      error,
+    );
     return false;
   }
 }
@@ -99,11 +118,18 @@ export async function updateDatabaseViewId(wordId: number, viewId: 0 | 1): Promi
  * After word completes, check chapter guards (50% & 80%)
  * Emits event for UI Magic Trigger
  */
-async function onWordCompletedTriggerChapterCheck(wordId: number): Promise<void> {
+async function onWordCompletedTriggerChapterCheck(
+  wordId: number,
+): Promise<void> {
   try {
     // Get chapter_id from word
-    const [result] = await SQLiteManager.executeSql('SELECT chapter_id FROM WordTable WHERE word_id = ?;', [wordId]);
-    if (result.rows.length === 0) return;
+    const [result] = await SQLiteManager.executeSql(
+      'SELECT chapter_id FROM WordTable WHERE word_id = ?;',
+      [wordId],
+    );
+    if (result.rows.length === 0) {
+      return;
+    }
 
     const chapter_id = result.rows.item(0).chapter_id as number;
 
@@ -113,7 +139,9 @@ async function onWordCompletedTriggerChapterCheck(wordId: number): Promise<void>
     // If natural 80% reached, auto unlock chapter
     if (status.is80ManagerPassed && !status.isUnlocked) {
       await ChapterTable.unlockChapter(chapter_id);
-      console.log(`[UnlockQuery] Chapter ${chapter_id} auto-unlocked via 80% Manager`);
+      console.log(
+        `[UnlockQuery] Chapter ${chapter_id} auto-unlocked via 80% Manager`,
+      );
     }
 
     // If 50% guard passed, emit signal for Invisible UI Magic
@@ -125,7 +153,10 @@ async function onWordCompletedTriggerChapterCheck(wordId: number): Promise<void>
       eventMMKV.set(`chapter_${chapter_id}_guard_event_at`, Date.now());
     }
   } catch (error) {
-    console.error('[UnlockQuery] onWordCompletedTriggerChapterCheck failed:', error);
+    console.error(
+      '[UnlockQuery] onWordCompletedTriggerChapterCheck failed:',
+      error,
+    );
   }
 }
 
@@ -133,15 +164,22 @@ async function onWordCompletedTriggerChapterCheck(wordId: number): Promise<void>
  * Batch Check for Daily Event Completion
  * When user finishes event cards, check all
  */
-export async function batchCheckWordCompletion(wordIds: number[]): Promise<{ newlyCompleted: number[]; alreadyCompleted: number[] }> {
+export async function batchCheckWordCompletion(
+  wordIds: number[],
+): Promise<{newlyCompleted: number[]; alreadyCompleted: number[]}> {
   const newlyCompleted: number[] = [];
   const alreadyCompleted: number[] = [];
 
   for (const wordId of wordIds) {
     const check = checkWordCompletionFromMMKV(wordId);
-    if (!check.isCompleted) continue;
+    if (!check.isCompleted) {
+      continue;
+    }
 
-    const [existing] = await SQLiteManager.executeSql('SELECT view_id FROM WordTable WHERE word_id = ?;', [wordId]);
+    const [existing] = await SQLiteManager.executeSql(
+      'SELECT view_id FROM WordTable WHERE word_id = ?;',
+      [wordId],
+    );
     const viewId = existing.rows.length > 0 ? existing.rows.item(0).view_id : 0;
 
     if (viewId === 1) {
@@ -155,7 +193,7 @@ export async function batchCheckWordCompletion(wordIds: number[]): Promise<{ new
     }
   }
 
-  return { newlyCompleted, alreadyCompleted };
+  return {newlyCompleted, alreadyCompleted};
 }
 
 /**
@@ -165,9 +203,12 @@ export async function batchCheckWordCompletion(wordIds: number[]): Promise<{ new
 export async function unlockChapterViaBank(
   chapterId: number,
   bankBalance: number,
-  creditToDeduct: number
-): Promise<{ success: boolean; message: string; newBankBalance?: number }> {
-  const status = await ChapterTable.checkChapterUnlockStatus(chapterId, bankBalance);
+  creditToDeduct: number,
+): Promise<{success: boolean; message: string; newBankBalance?: number}> {
+  const status = await ChapterTable.checkChapterUnlockStatus(
+    chapterId,
+    bankBalance,
+  );
 
   if (!status.is50GuardPassed) {
     return {
@@ -177,7 +218,7 @@ export async function unlockChapterViaBank(
   }
 
   if (status.isUnlocked) {
-    return { success: true, message: 'Chapter already unlocked' };
+    return {success: true, message: 'Chapter already unlocked'};
   }
 
   if (bankBalance < status.needsBankCredit) {
@@ -188,9 +229,10 @@ export async function unlockChapterViaBank(
   }
 
   // Deduct from DailyBank Table
-  await SQLiteManager.executeSql('UPDATE DailyBank SET total_balance = total_balance - ? WHERE id = (SELECT id FROM DailyBank ORDER BY id DESC LIMIT 1);', [
-    creditToDeduct,
-  ]);
+  await SQLiteManager.executeSql(
+    'UPDATE DailyBank SET total_balance = total_balance - ? WHERE id = (SELECT id FROM DailyBank ORDER BY id DESC LIMIT 1);',
+    [creditToDeduct],
+  );
 
   const unlocked = await ChapterTable.unlockChapter(chapterId);
 
@@ -202,12 +244,14 @@ export async function unlockChapterViaBank(
 
     return {
       success: true,
-      message: `Chapter unlocked! ${creditToDeduct}% deducted. ${status.completedPercent}% + ${creditToDeduct}% = ${status.completedPercent + creditToDeduct}%`,
+      message: `Chapter unlocked! ${creditToDeduct}% deducted. ${
+        status.completedPercent
+      }% + ${creditToDeduct}% = ${status.completedPercent + creditToDeduct}%`,
       newBankBalance: bankBalance - creditToDeduct,
     };
   }
 
-  return { success: false, message: 'Unlock failed due to DB error' };
+  return {success: false, message: 'Unlock failed due to DB error'};
 }
 
 export default {
@@ -217,4 +261,3 @@ export default {
   batchCheckWordCompletion,
   unlockChapterViaBank,
 };
-

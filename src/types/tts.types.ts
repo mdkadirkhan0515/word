@@ -3,15 +3,15 @@
  * TTS Engine Types - Global Stop, Character-Level Resume, Background Audio
  */
 
-export type TTSMode = "m1" | "m2" | "m3" | "m4" | "m5";
-export type TTSState = "PLAYING" | "PAUSED" | "STOPPED";
+export type TTSMode = 'm1' | 'm2' | 'm3' | 'm4' | 'm5';
+export type TTSState = 'PLAYING' | 'PAUSED' | 'STOPPED';
 export type TTSStopReason =
-  | "NAVIGATION_EXIT"
-  | "MODE_SWITCH"
-  | "USER_STOP"
-  | "COMPLETION"
-  | "ERROR"
-  | "APP_BACKGROUND";
+  | 'NAVIGATION_EXIT'
+  | 'MODE_SWITCH'
+  | 'USER_STOP'
+  | 'COMPLETION'
+  | 'ERROR'
+  | 'APP_BACKGROUND';
 
 export interface TTSResumePosition {
   word_id: number;
@@ -50,7 +50,7 @@ export interface ThemeColors {
 }
 
 export interface HighlightingResult {
-  segments: { text: string; highlighted: boolean }[];
+  segments: {text: string; highlighted: boolean}[];
   isHighlighted: boolean;
   start: number;
   end: number;
@@ -77,7 +77,7 @@ export interface UseTTSReturn {
   isPaused: boolean;
   ttsState: TTSState;
   currentWordId: number | null;
-  highlightedSegments: { text: string; highlighted: boolean }[];
+  highlightedSegments: {text: string; highlighted: boolean}[];
   handleCardPress: () => Promise<void>;
   handleEmptySpacePress: () => Promise<void>;
   playFromPosition: (word_id: number, char_index: number) => Promise<void>;
@@ -87,12 +87,12 @@ export interface UseTTSReturn {
 }
 
 export const TTS_MMKV_KEYS = {
-  RESUME_POSITION: "tts_resume_position",
-  CURRENT_STATE: "tts_current_state",
-  ACTIVE_MODE: "active_tts_mode",
-  BACKGROUND_ENABLED: "tts_background_enabled",
-  CURRENT_WORD_ID: "tts_current_word_id",
-  LAST_CHAR_INDEX: "tts_last_char_index",
-  TTS_RATE: "tts_speech_rate",
-  TTS_GAP: "tts_time_gap",
+  RESUME_POSITION: 'tts_resume_position',
+  CURRENT_STATE: 'tts_current_state',
+  ACTIVE_MODE: 'active_tts_mode',
+  BACKGROUND_ENABLED: 'tts_background_enabled',
+  CURRENT_WORD_ID: 'tts_current_word_id',
+  LAST_CHAR_INDEX: 'tts_last_char_index',
+  TTS_RATE: 'tts_speech_rate',
+  TTS_GAP: 'tts_time_gap',
 } as const;

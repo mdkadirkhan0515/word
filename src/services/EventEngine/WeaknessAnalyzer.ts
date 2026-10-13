@@ -8,10 +8,8 @@
  * Input: 20*5=100 MMKV Keys, Output: 4 Stages grouped by missing modes
  */
 
-import WordProgressKey, {
-  ModeNumber,
-} from "../../storage/keys/WordProgressKey";
-import { dailyBankMMKV } from "../../storage/MMKVInstance";
+import WordProgressKey, {ModeNumber} from '../../storage/keys/WordProgressKey';
+import {dailyBankMMKV} from '../../storage/MMKVInstance';
 
 export type StageNumber = 1 | 2 | 3 | 4;
 
@@ -52,7 +50,7 @@ class WeaknessAnalyzerSingleton {
    */
   analyze(
     wordIds: number[],
-    completedStages: StageNumber[] = [1]
+    completedStages: StageNumber[] = [1],
   ): FullWeaknessAnalysis {
     if (!wordIds || wordIds.length === 0) {
       return this.getEmptyAnalysis();
@@ -88,7 +86,7 @@ class WeaknessAnalyzerSingleton {
     };
 
     let totalCompleted = 0;
-    const modeCompletionCount = { m1: 0, m2: 0, m3: 0, m4: 0, m5: 0 };
+    const modeCompletionCount = {m1: 0, m2: 0, m3: 0, m4: 0, m5: 0};
 
     for (const wordId of wordIds) {
       const progress = WordProgressKey.getWordProgress(wordId);
@@ -96,7 +94,7 @@ class WeaknessAnalyzerSingleton {
       if (progress.isCompleted) {
         totalCompleted++;
         // Count for stats
-        Object.keys(modeCompletionCount).forEach((key) => {
+        Object.keys(modeCompletionCount).forEach(key => {
           const mode = key as keyof typeof modeCompletionCount;
           modeCompletionCount[mode]++;
         });
@@ -136,28 +134,28 @@ class WeaknessAnalyzerSingleton {
         totalCompleted++;
       } else if (missingCount === 1) {
         // Stage 1: 1 Mode Left - 4 modes done, easiest
-        missing.forEach((m) =>
-          stage1[`m${m}` as keyof typeof stage1].push(wordId)
+        missing.forEach(m =>
+          stage1[`m${m}` as keyof typeof stage1].push(wordId),
         );
       } else if (missingCount === 2) {
         // Stage 2: 2 Modes Left - 3 done
-        missing.forEach((m) =>
-          stage2[`m${m}` as keyof typeof stage2].push(wordId)
+        missing.forEach(m =>
+          stage2[`m${m}` as keyof typeof stage2].push(wordId),
         );
       } else if (missingCount === 3) {
         // Stage 3: 3 Modes Left - 2 done
-        missing.forEach((m) =>
-          stage3[`m${m}` as keyof typeof stage3].push(wordId)
+        missing.forEach(m =>
+          stage3[`m${m}` as keyof typeof stage3].push(wordId),
         );
       } else if (missingCount === 4) {
         // Stage 4: 4 Modes Left - 1 done, most neglected
-        missing.forEach((m) =>
-          stage4[`m${m}` as keyof typeof stage4].push(wordId)
+        missing.forEach(m =>
+          stage4[`m${m}` as keyof typeof stage4].push(wordId),
         );
       } else if (missingCount === 5) {
         // All 5 missing - also Stage 4 (never touched)
-        missing.forEach((m) =>
-          stage4[`m${m}` as keyof typeof stage4].push(wordId)
+        missing.forEach(m =>
+          stage4[`m${m}` as keyof typeof stage4].push(wordId),
         );
       }
     }
@@ -172,7 +170,7 @@ class WeaknessAnalyzerSingleton {
     ).forEach(([key, count]) => {
       if (count < minCount) {
         minCount = count;
-        mostNeglected = Number(key.replace("m", "")) as ModeNumber;
+        mostNeglected = Number(key.replace('m', '')) as ModeNumber;
       }
     });
 
@@ -186,7 +184,7 @@ class WeaknessAnalyzerSingleton {
     const createStage = (
       stageNum: StageNumber,
       groups: typeof stage1,
-      isLocked: boolean
+      isLocked: boolean,
     ): WeaknessStage => {
       const unique = new Set([
         ...groups.m1,
@@ -203,17 +201,17 @@ class WeaknessAnalyzerSingleton {
         groups.m5.length;
 
       const titles = {
-        1: "পর্যায় ১ (ACTIVE) — ৫%",
-        2: "পর্যায় ২ (LOCKED) — ৫%",
-        3: "পর্যায় ৩ (LOCKED) — ৫%",
-        4: "পর্যায় ৪ (LOCKED) — ৫%",
+        1: 'পর্যায় ১ (ACTIVE) — ৫%',
+        2: 'পর্যায় ২ (LOCKED) — ৫%',
+        3: 'পর্যায় ৩ (LOCKED) — ৫%',
+        4: 'পর্যায় ৪ (LOCKED) — ৫%',
       };
 
       const descs = {
-        1: "সবচেয়ে সহজ - ১টি Mode বাকি",
-        2: "মাঝারি - ২টি Mode বাকি (পর্যায় ১ শেষ করুন)",
-        3: "গভীর পড়া - ৩টি Mode বাকি",
-        4: "দুর্বলতা দূরীকরণ - ৪টি Mode বাকি",
+        1: 'সবচেয়ে সহজ - ১টি Mode বাকি',
+        2: 'মাঝারি - ২টি Mode বাকি (পর্যায় ১ শেষ করুন)',
+        3: 'গভীর পড়া - ৩টি Mode বাকি',
+        4: 'দুর্বলতা দূরীকরণ - ৪টি Mode বাকি',
       };
 
       return {
@@ -227,7 +225,7 @@ class WeaknessAnalyzerSingleton {
         isLocked,
         unlockRequirement:
           stageNum === 1
-            ? "Unlocked"
+            ? 'Unlocked'
             : `পর্যায় ${stageNum - 1} এর সকল টাস্ক সম্পন্ন করুন`,
       };
     };
@@ -258,18 +256,18 @@ class WeaknessAnalyzerSingleton {
   }
 
   private getEmptyAnalysis(): FullWeaknessAnalysis {
-    const emptyGroups = { m1: [], m2: [], m3: [], m4: [], m5: [] };
+    const emptyGroups = {m1: [], m2: [], m3: [], m4: [], m5: []};
     const createEmpty = (stage: StageNumber): WeaknessStage => ({
       stage,
       title: `পর্যায় ${stage}`,
-      description: "",
+      description: '',
       creditPercent: 5,
-      groups: { ...emptyGroups },
+      groups: {...emptyGroups},
       totalUniqueWords: 0,
       totalCards: 0,
       isLocked: stage !== 1,
       unlockRequirement:
-        stage === 1 ? "Unlocked" : `পর্যায় ${stage - 1} শেষ করুন`,
+        stage === 1 ? 'Unlocked' : `পর্যায় ${stage - 1} শেষ করুন`,
     });
 
     return {
@@ -293,13 +291,13 @@ class WeaknessAnalyzerSingleton {
   getWordsForStageMode(
     analysis: FullWeaknessAnalysis,
     stage: StageNumber,
-    mode: ModeNumber
+    mode: ModeNumber,
   ): number[] {
     const stageKey = {
-      1: "stage1_1ModeLeft",
-      2: "stage2_2ModesLeft",
-      3: "stage3_3ModesLeft",
-      4: "stage4_4ModesLeft",
+      1: 'stage1_1ModeLeft',
+      2: 'stage2_2ModesLeft',
+      3: 'stage3_3ModesLeft',
+      4: 'stage4_4ModesLeft',
     }[stage] as keyof FullWeaknessAnalysis;
 
     const stageData = analysis[stageKey] as WeaknessStage;
@@ -310,7 +308,7 @@ class WeaknessAnalyzerSingleton {
    * Save completed stages to MMKV (for lock/unlock)
    */
   markStageCompleted(stage: StageNumber): void {
-    const key = "completed_event_stages";
+    const key = 'completed_event_stages';
     const raw = dailyBankMMKV.getString(key);
     let completed: StageNumber[] = [];
     try {
@@ -327,7 +325,7 @@ class WeaknessAnalyzerSingleton {
   }
 
   getCompletedStages(): StageNumber[] {
-    const raw = dailyBankMMKV.getString("completed_event_stages");
+    const raw = dailyBankMMKV.getString('completed_event_stages');
     if (!raw) {
       return [1];
     } // Stage 1 always active initially

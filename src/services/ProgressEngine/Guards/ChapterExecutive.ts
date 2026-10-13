@@ -10,15 +10,15 @@
 
 import ChapterTable, {
   ChapterUnlockStatus,
-} from "../../../database/ChapterTable";
-import BankManager from "../../../storage/DailyBank/BankManager";
-import DefaultGuard from "./DefaultGuard";
-import { eventsMMKV } from "../../../storage/MMKVInstance";
-import DynamicTarget from "../../../storage/DailyBank/DynamicTarget";
+} from '../../../database/ChapterTable';
+import BankManager from '../../../storage/DailyBank/BankManager';
+import DefaultGuard from './DefaultGuard';
+import {eventsMMKV} from '../../../storage/MMKVInstance';
+import DynamicTarget from '../../../storage/DailyBank/DynamicTarget';
 
 export interface ExecutiveResult {
   isUnlocked: boolean;
-  unlockType: "natural" | "bank" | "locked";
+  unlockType: 'natural' | 'bank' | 'locked';
   completedPercent: number;
   targetPercent: number; // 80 or dynamic from 30-Day Algo
   needsBankCredit: number;
@@ -60,16 +60,16 @@ class ChapterExecutiveSingleton {
         completedPercent + Math.min(bankBalance, needsBankCredit) >=
           targetPercent);
 
-    let unlockType: ExecutiveResult["unlockType"] = "locked";
-    let message = "";
+    let unlockType: ExecutiveResult['unlockType'] = 'locked';
+    let message = '';
     let celebration: string | undefined;
 
     if (isNaturalUnlock) {
-      unlockType = "natural";
+      unlockType = 'natural';
       message = `Natural unlock: ${completedPercent}% >= ${targetPercent}%`;
       celebration = `চমৎকার! ${targetPercent}% পূরণ হয়েছে`;
     } else if (isUnlocked && is50Passed) {
-      unlockType = "bank";
+      unlockType = 'bank';
       message = `Bank unlock: ${completedPercent}% + ${needsBankCredit}% Bank = ${targetPercent}%`;
       celebration = `ব্যাংক ক্রেডিট দিয়ে আনলক! ${completedPercent}% + ${needsBankCredit}% = ${
         completedPercent + needsBankCredit
@@ -113,11 +113,11 @@ class ChapterExecutiveSingleton {
 
     const exec = await this.check(chapter_id);
 
-    if (exec.isUnlocked && exec.unlockType === "natural") {
+    if (exec.isUnlocked && exec.unlockType === 'natural') {
       return {
         success: true,
         executiveResult: exec,
-        message: "Already naturally unlocked",
+        message: 'Already naturally unlocked',
       };
     }
 
@@ -132,7 +132,7 @@ class ChapterExecutiveSingleton {
     // Deduct and unlock
     const deductResult = await BankManager.deductCredit(
       exec.needsBankCredit,
-      `chapter_${chapter_id}_unlock`
+      `chapter_${chapter_id}_unlock`,
     );
 
     if (!deductResult.success) {
@@ -165,7 +165,7 @@ class ChapterExecutiveSingleton {
     return {
       success: false,
       executiveResult: exec,
-      message: "Unlock failed due to DB error",
+      message: 'Unlock failed due to DB error',
     };
   }
 
@@ -176,13 +176,13 @@ class ChapterExecutiveSingleton {
   async checkAutoUnlock(chapter_id: number): Promise<boolean> {
     const exec = await this.check(chapter_id);
 
-    if (exec.unlockType === "natural" && !exec.isUnlocked) {
+    if (exec.unlockType === 'natural' && !exec.isUnlocked) {
       const unlocked = await ChapterTable.unlockChapter(chapter_id);
       if (unlocked) {
         eventsMMKV.set(`chapter_${chapter_id}_auto_unlocked`, true);
         eventsMMKV.set(`chapter_${chapter_id}_unlocked_at`, Date.now());
         console.log(
-          `[ChapterExecutive] ${exec.celebrationMessage} - Chapter ${chapter_id} auto-unlocked!`
+          `[ChapterExecutive] ${exec.celebrationMessage} - Chapter ${chapter_id} auto-unlocked!`,
         );
         return true;
       }
@@ -195,7 +195,7 @@ class ChapterExecutiveSingleton {
    * Get all chapters executive status (Home Screen)
    */
   async checkAllChapters(
-    chapterIds: number[]
+    chapterIds: number[],
   ): Promise<Record<number, ExecutiveResult>> {
     const result: Record<number, ExecutiveResult> = {};
 
@@ -219,7 +219,7 @@ class ChapterExecutiveSingleton {
       return {
         primary: `${execResult.completedPercent}% সম্পন্ন`,
         secondary:
-          execResult.unlockType === "natural" ? "আনলকড" : "ব্যাংক দিয়ে আনলকড",
+          execResult.unlockType === 'natural' ? 'আনলকড' : 'ব্যাংক দিয়ে আনলকড',
         showBankButton: false,
       };
     }

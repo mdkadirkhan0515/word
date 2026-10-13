@@ -7,8 +7,10 @@
 
 // MMKV not needed here - using factory
 // import { MMKV } from 'react-native-mmkv';
-import DynamicTarget, { ThirtyDaysMetrics } from '../../storage/DailyBank/DynamicTarget';
-import { dynamicTargetMMKV } from '../../storage/MMKVInstance';
+import DynamicTarget, {
+  ThirtyDaysMetrics,
+} from '../../storage/DailyBank/DynamicTarget';
+import {dynamicTargetMMKV} from '../../storage/MMKVInstance';
 import SQLiteManager from '../../database/SQLiteManager';
 
 export interface AndroidLoginData {
@@ -33,12 +35,17 @@ class ThirtyDayAlgoEngine {
    * Main: Generate Dynamic Target for a Chapter
    * Uses 30-Day Activity from Android Login
    */
-  async generateForChapter(chapterId: number, androidData?: AndroidLoginData): Promise<DynamicTargetResult> {
+  async generateForChapter(
+    chapterId: number,
+    androidData?: AndroidLoginData,
+  ): Promise<DynamicTargetResult> {
     // Check cache first
     const cached = this.getCachedTarget(chapterId);
     if (cached && !this.isCacheExpired(cached.calculatedAt)) {
-      console.log(`[ThirtyDayAlgo] Chapter ${chapterId} using cached target: ${cached.targetPercentage}%`);
-      return { ...cached, isFromCache: true };
+      console.log(
+        `[ThirtyDayAlgo] Chapter ${chapterId} using cached target: ${cached.targetPercentage}%`,
+      );
+      return {...cached, isFromCache: true};
     }
 
     // Get Android data
@@ -97,7 +104,9 @@ class ThirtyDayAlgoEngine {
 
   private getCachedTarget(chapterId: number): DynamicTargetResult | null {
     const raw = dynamicTargetMMKV.getString(this.getCacheKey(chapterId));
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
     try {
       return JSON.parse(raw) as DynamicTargetResult;
     } catch {
@@ -105,21 +114,43 @@ class ThirtyDayAlgoEngine {
     }
   }
 
-  private saveToCache(result: DynamicTargetResult, activity: number[], counts: number[]): void {
-    dynamicTargetMMKV.set(this.getCacheKey(result.chapterId), JSON.stringify(result));
-    dynamicTargetMMKV.set(`thirty_days_activity_chapter_${result.chapterId}`, JSON.stringify(activity));
-    dynamicTargetMMKV.set(`daily_counts_chapter_${result.chapterId}`, JSON.stringify(counts));
+  private saveToCache(
+    result: DynamicTargetResult,
+    activity: number[],
+    counts: number[],
+  ): void {
+    dynamicTargetMMKV.set(
+      this.getCacheKey(result.chapterId),
+      JSON.stringify(result),
+    );
+    dynamicTargetMMKV.set(
+      `thirty_days_activity_chapter_${result.chapterId}`,
+      JSON.stringify(activity),
+    );
+    dynamicTargetMMKV.set(
+      `daily_counts_chapter_${result.chapterId}`,
+      JSON.stringify(counts),
+    );
   }
 
   private isCacheExpired(calculatedAt: number): boolean {
     return Date.now() - calculatedAt > this.CACHE_EXPIRY_MS;
   }
 
-  private async saveToChapterTable(chapterId: number, target: number): Promise<void> {
+  private async saveToChapterTable(
+    chapterId: number,
+    target: number,
+  ): Promise<void> {
     try {
-      await SQLiteManager.executeSql('UPDATE ChapterTable SET target_percentage = ? WHERE chapter_id = ?;', [target, chapterId]);
+      await SQLiteManager.executeSql(
+        'UPDATE ChapterTable SET target_percentage = ? WHERE chapter_id = ?;',
+        [target, chapterId],
+      );
     } catch (error) {
-      console.error(`[ThirtyDayAlgo] Failed to save target to ChapterTable ${chapterId}:`, error);
+      console.error(
+        `[ThirtyDayAlgo] Failed to save target to ChapterTable ${chapterId}:`,
+        error,
+      );
     }
   }
 
@@ -128,18 +159,26 @@ class ThirtyDayAlgoEngine {
    */
   getCurrentTarget(chapterId: number): number {
     const cached = this.getCachedTarget(chapterId);
-    if (cached) return cached.targetPercentage;
+    if (cached) {
+      return cached.targetPercentage;
+    }
     return DynamicTarget.getCurrentTarget();
   }
 
   /**
    * Recalculate all chapters (daily cron)
    */
-  async recalculateAllChapters(chapterIds: number[], androidData?: AndroidLoginData): Promise<Record<number, DynamicTargetResult>> {
+  async recalculateAllChapters(
+    chapterIds: number[],
+    androidData?: AndroidLoginData,
+  ): Promise<Record<number, DynamicTargetResult>> {
     const results: Record<number, DynamicTargetResult> = {};
 
     for (const chapterId of chapterIds) {
-      results[chapterId] = await this.generateForChapter(chapterId, androidData);
+      results[chapterId] = await this.generateForChapter(
+        chapterId,
+        androidData,
+      );
     }
 
     return results;
@@ -152,9 +191,13 @@ class ThirtyDayAlgoEngine {
    * low: 8/30 active => 50-55% target (safe zone)
    * churn: 5 day gap => penalty drops to 50%
    */
-  simulateAndSave(chapterId: number, type: 'high' | 'medium' | 'low' | 'churn'): DynamicTargetResult {
+  simulateAndSave(
+    chapterId: number,
+    type: 'high' | 'medium' | 'low' | 'churn',
+  ): DynamicTargetResult {
     const target = DynamicTarget.simulateUser(type);
-    const metrics = DynamicTarget.getMetrics() || this.getFallbackMetrics(target);
+    const metrics =
+      DynamicTarget.getMetrics() || this.getFallbackMetrics(target);
 
     const result: DynamicTargetResult = {
       chapterId,
@@ -216,10 +259,14 @@ class ThirtyDayAlgoEngine {
   /**
    * Clear cache (on logout)
    */
-    clearCache(): void {
+  clearCache(): void {
     const keys = dynamicTargetMMKV.getAllKeys();
     keys.forEach((key: string) => {
-      if (key.startsWith('dynamic_target_chapter_') || key.startsWith('thirty_days_') || key.startsWith('daily_counts_')) {
+      if (
+        key.startsWith('dynamic_target_chapter_') ||
+        key.startsWith('thirty_days_') ||
+        key.startsWith('daily_counts_')
+      ) {
         dynamicTargetMMKV.remove(key);
       }
     });
@@ -227,5 +274,3 @@ class ThirtyDayAlgoEngine {
 }
 export const ThirtyDayAlgo = new ThirtyDayAlgoEngine();
 export default ThirtyDayAlgo;
-
-

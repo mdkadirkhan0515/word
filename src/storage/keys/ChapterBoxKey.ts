@@ -6,8 +6,8 @@
  * Purpose: Instant Drawer Read, No Recalculation, Offline-First
  */
 
-import { chapterBoxMMKV } from "../MMKVInstance";
-import WordProgressKey from "./WordProgressKey";
+import {chapterBoxMMKV} from '../MMKVInstance';
+import WordProgressKey from './WordProgressKey';
 
 export type ChapterMode = 1 | 2 | 3 | 4 | 5;
 
@@ -25,8 +25,8 @@ export interface ChapterBoxProgress {
 }
 
 class ChapterBoxManager {
-  private readonly PREFIX = "chapter";
-  private readonly SUFFIX = "progress";
+  private readonly PREFIX = 'chapter';
+  private readonly SUFFIX = 'progress';
 
   private getKey(chapter_id: number, mode: ChapterMode): string {
     return `${this.PREFIX}_${chapter_id}_mode_${mode}_${this.SUFFIX}`;
@@ -47,7 +47,7 @@ class ChapterBoxManager {
    */
   saveChapterProgress(
     chapter_id: number,
-    wordIds: number[]
+    wordIds: number[],
   ): ChapterBoxProgress {
     if (!wordIds || wordIds.length === 0) {
       const empty: ChapterBoxProgress = {
@@ -93,7 +93,7 @@ class ChapterBoxManager {
     };
 
     console.log(
-      `[ChapterBox] Chapter ${chapter_id} saved: ${calc.totalProgressPercent}% (M1:${calc.mode1} M2:${calc.mode2} M3:${calc.mode3} M4:${calc.mode4} M5:${calc.mode5})`
+      `[ChapterBox] Chapter ${chapter_id} saved: ${calc.totalProgressPercent}% (M1:${calc.mode1} M2:${calc.mode2} M3:${calc.mode3} M4:${calc.mode4} M5:${calc.mode5})`,
     );
 
     return progress;
@@ -150,7 +150,7 @@ class ChapterBoxManager {
    * Returns Map of chapter_id -> progress
    */
   getAllChaptersProgress(
-    chapterIds: number[]
+    chapterIds: number[],
   ): Record<number, ChapterBoxProgress> {
     const result: Record<number, ChapterBoxProgress> = {};
     for (const id of chapterIds) {
@@ -165,7 +165,7 @@ class ChapterBoxManager {
    */
   async incrementalUpdate(
     chapter_id: number,
-    wordIds: number[]
+    wordIds: number[],
   ): Promise<ChapterBoxProgress> {
     // Recalculate entire chapter (still single loop, very fast in MMKV)
     return this.saveChapterProgress(chapter_id, wordIds);
@@ -195,7 +195,7 @@ class ChapterBoxManager {
     console.log(`chapter_${chapter_id}_mode_4_progress = ${p.mode4}%`);
     console.log(`chapter_${chapter_id}_mode_5_progress = ${p.mode5}%`);
     console.log(
-      `chapter_${chapter_id}_total_progress = ${p.totalProgressPercent}%`
+      `chapter_${chapter_id}_total_progress = ${p.totalProgressPercent}%`,
     );
   }
 }

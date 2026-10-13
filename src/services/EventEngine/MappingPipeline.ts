@@ -9,13 +9,13 @@ import {
   fetchDisplayDataFromPrimaryKeys,
   toEventCardDisplay,
   EnrichedDisplayData,
-} from "../../database/queries/BatchFetch";
+} from '../../database/queries/BatchFetch';
 import WeaknessAnalyzer, {
   FullWeaknessAnalysis,
   StageNumber,
   WeaknessStage,
-} from "./WeaknessAnalyzer";
-import { ModeNumber } from "../../storage/keys/WordProgressKey";
+} from './WeaknessAnalyzer';
+import {ModeNumber} from '../../storage/keys/WordProgressKey';
 
 export interface EventCard {
   id: string; // e.g., "stage1_m1"
@@ -44,13 +44,13 @@ export interface DailyEventPipelineResult {
 class MappingPipelineSingleton {
   private readonly MODE_ICONS: Record<
     ModeNumber,
-    { icon: string; label: string }
+    {icon: string; label: string}
   > = {
-    1: { icon: "volume-high", label: "Sound" }, // m1 🔊 -> volume-high
-    2: { icon: "play-circle-outline", label: "Play1" }, // m2 ▶️ -> play-circle-outline
-    3: { icon: "book-open-page-variant", label: "Default" }, // m3 📖 -> book
-    4: { icon: "lightbulb-on-outline", label: "Practice" }, // m4 😊 -> lightbulb
-    5: { icon: "play-speed", label: "Play2" }, // m5 🎯 -> play-speed
+    1: {icon: 'volume-high', label: 'Sound'}, // m1 🔊 -> volume-high
+    2: {icon: 'play-circle-outline', label: 'Play1'}, // m2 ▶️ -> play-circle-outline
+    3: {icon: 'book-open-page-variant', label: 'Default'}, // m3 📖 -> book
+    4: {icon: 'lightbulb-on-outline', label: 'Practice'}, // m4 😊 -> lightbulb
+    5: {icon: 'play-speed', label: 'Play2'}, // m5 🎯 -> play-speed
   };
 
   /**
@@ -59,13 +59,13 @@ class MappingPipelineSingleton {
    * Output: Enriched Event Cards ready for UI
    */
   async buildDailyEventCards(
-    wordIds: number[]
+    wordIds: number[],
   ): Promise<DailyEventPipelineResult> {
     // 1. Analyze weakness into 4 stages
     const completedStages = WeaknessAnalyzer.getCompletedStages();
     const analysis: FullWeaknessAnalysis = WeaknessAnalyzer.analyze(
       wordIds,
-      completedStages
+      completedStages,
     );
 
     // 2. Collect all word_ids from all stages for batch fetch (optimize)
@@ -75,36 +75,36 @@ class MappingPipelineSingleton {
       analysis.stage2_2ModesLeft,
       analysis.stage3_3ModesLeft,
       analysis.stage4_4ModesLeft,
-    ].forEach((stage) => {
-      Object.values(stage.groups).forEach((group) => {
-        group.forEach((id) => allWordIdsToFetch.add(id));
+    ].forEach(stage => {
+      Object.values(stage.groups).forEach(group => {
+        group.forEach(id => allWordIdsToFetch.add(id));
       });
     });
 
     // 3. Batch fetch all display data at once (single IN query)
-    const { enriched: allEnriched, chapterGrouped } =
+    const {enriched: allEnriched, chapterGrouped} =
       await fetchDisplayDataFromPrimaryKeys(Array.from(allWordIdsToFetch));
 
     // Create lookup map for fast access
     const enrichedMap = new Map<number, EnrichedDisplayData>();
-    allEnriched.forEach((e) => enrichedMap.set(e.wordId, e));
+    allEnriched.forEach(e => enrichedMap.set(e.wordId, e));
 
     // 4. Build cards per stage
     const stage1Cards = this.buildStageCards(
       analysis.stage1_1ModeLeft,
-      enrichedMap
+      enrichedMap,
     );
     const stage2Cards = this.buildStageCards(
       analysis.stage2_2ModesLeft,
-      enrichedMap
+      enrichedMap,
     );
     const stage3Cards = this.buildStageCards(
       analysis.stage3_3ModesLeft,
-      enrichedMap
+      enrichedMap,
     );
     const stage4Cards = this.buildStageCards(
       analysis.stage4_4ModesLeft,
-      enrichedMap
+      enrichedMap,
     );
 
     const allCards = [
@@ -115,12 +115,12 @@ class MappingPipelineSingleton {
     ];
     const totalCredit = allCards.reduce(
       (sum, card) => sum + card.creditPercent,
-      0
+      0,
     );
-    const uniqueWords = new Set(allCards.flatMap((c) => c.wordIds)).size;
+    const uniqueWords = new Set(allCards.flatMap(c => c.wordIds)).size;
 
     console.log(
-      `[MappingPipeline] Built ${allCards.length} cards, ${totalCredit}% total credit, ${uniqueWords} unique words`
+      `[MappingPipeline] Built ${allCards.length} cards, ${totalCredit}% total credit, ${uniqueWords} unique words`,
     );
 
     return {
@@ -136,7 +136,7 @@ class MappingPipelineSingleton {
 
   private buildStageCards(
     stage: WeaknessStage,
-    enrichedMap: Map<number, EnrichedDisplayData>
+    enrichedMap: Map<number, EnrichedDisplayData>,
   ): EventCard[] {
     const cards: EventCard[] = [];
 
@@ -147,9 +147,9 @@ class MappingPipelineSingleton {
           return;
         }
 
-        const mode = Number(modeKey.replace("m", "")) as ModeNumber;
+        const mode = Number(modeKey.replace('m', '')) as ModeNumber;
         const enriched = wordIds
-          .map((id) => enrichedMap.get(id))
+          .map(id => enrichedMap.get(id))
           .filter(Boolean) as EnrichedDisplayData[];
 
         if (enriched.length === 0) {
@@ -167,10 +167,10 @@ class MappingPipelineSingleton {
 
         // Create one card per chapter group (or combine if same chapter)
         Object.entries(byChapter).forEach(([chapterName, chapterEnriched]) => {
-          const displayIds = chapterEnriched.map((e) => e.displayWordId);
+          const displayIds = chapterEnriched.map(e => e.displayWordId);
           const title = `${chapterName} ${displayIds
-            .map((id) => `#${id}`)
-            .join(", ")}`;
+            .map(id => `#${id}`)
+            .join(', ')}`;
           const iconInfo = this.MODE_ICONS[mode];
 
           cards.push({
@@ -180,14 +180,14 @@ class MappingPipelineSingleton {
             modeIcon: iconInfo.icon,
             title,
             displayIds,
-            wordIds: chapterEnriched.map((e) => e.wordId),
+            wordIds: chapterEnriched.map(e => e.wordId),
             enriched: chapterEnriched,
             creditPercent: 1, // Each card +1%
             isCompleted: false,
             chapterName,
           });
         });
-      }
+      },
     );
 
     return cards;
@@ -198,7 +198,7 @@ class MappingPipelineSingleton {
    */
   async getStageCards(
     wordIds: number[],
-    stage: StageNumber
+    stage: StageNumber,
   ): Promise<EventCard[]> {
     const completedStages = WeaknessAnalyzer.getCompletedStages();
     const analysis = WeaknessAnalyzer.analyze(wordIds, completedStages);
@@ -211,10 +211,10 @@ class MappingPipelineSingleton {
     }[stage];
 
     const allIds = Object.values(stageData.groups).flat();
-    const { enriched } = await fetchDisplayDataFromPrimaryKeys(allIds);
+    const {enriched} = await fetchDisplayDataFromPrimaryKeys(allIds);
 
     const enrichedMap = new Map<number, EnrichedDisplayData>();
-    enriched.forEach((e) => enrichedMap.set(e.wordId, e));
+    enriched.forEach(e => enrichedMap.set(e.wordId, e));
 
     return this.buildStageCards(stageData, enrichedMap);
   }
@@ -224,9 +224,9 @@ class MappingPipelineSingleton {
    * For DailyEventScreen: [Icon] [Title] [+1%]
    */
   toUIDisplay(
-    cards: EventCard[]
-  ): Array<{ icon: string; text: string; credit: string; cardId: string }> {
-    return cards.map((card) => ({
+    cards: EventCard[],
+  ): Array<{icon: string; text: string; credit: string; cardId: string}> {
+    return cards.map(card => ({
       icon: card.modeIcon, // volume-high, play-circle-outline etc
       text: card.title, // "অপরিচিতা #৩৫, #৭৮"
       credit: `+${card.creditPercent}%`,

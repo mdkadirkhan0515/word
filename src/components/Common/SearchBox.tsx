@@ -3,9 +3,9 @@
  * Search Box - Magnify + Close Circle Outline, No Hardcode
  */
 
-import React, { useState } from "react";
-import { View, TextInput, Pressable, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React, {useState} from 'react';
+import {View, TextInput, Pressable, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export interface SearchBoxProps {
   value: string;
@@ -17,11 +17,11 @@ export interface SearchBoxProps {
 export const SearchBox: React.FC<SearchBoxProps> = ({
   value,
   onChangeText,
-  placeholder = "সার্চ করুন...",
+  placeholder = 'সার্চ করুন...',
   onClear,
 }) => {
   const handleClear = () => {
-    onChangeText("");
+    onChangeText('');
     onClear?.();
   };
 
@@ -47,22 +47,22 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F3EDF7",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3EDF7',
     paddingHorizontal: 12,
     height: 44,
     borderRadius: 12, // Inner = Outer - Padding
     gap: 8,
     borderWidth: 1,
-    borderColor: "#E7E0EC",
+    borderColor: '#E7E0EC',
   },
-  input: { flex: 1, fontSize: 14, color: "#1C1B1F" },
+  input: {flex: 1, fontSize: 14, color: '#1C1B1F'},
   clearButton: {
     width: 28,
     height: 28,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

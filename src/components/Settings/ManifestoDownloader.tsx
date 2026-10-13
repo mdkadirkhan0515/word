@@ -5,7 +5,7 @@
  * Vector Icons Only
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import SQLiteManager from "../../database/SQLiteManager";
-import WordTable from "../../database/WordTable";
-import ChapterTable from "../../database/ChapterTable";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import SQLiteManager from '../../database/SQLiteManager';
+import WordTable from '../../database/WordTable';
+import ChapterTable from '../../database/ChapterTable';
 
 export interface ManifestoItem {
   manifesto_id: number;
@@ -49,7 +49,7 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
   const loadDownloadStatus = async () => {
     try {
       const [result] = await SQLiteManager.executeSql(
-        "SELECT manifesto_id, is_downloaded FROM ManifestoTable;"
+        'SELECT manifesto_id, is_downloaded FROM ManifestoTable;',
       );
       const statusMap = new Map<number, number>();
       for (let i = 0; i < result.rows.length; i++) {
@@ -57,14 +57,14 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
         statusMap.set(row.manifesto_id, row.is_downloaded);
       }
 
-      setItems((prev) =>
-        prev.map((item) => ({
+      setItems(prev =>
+        prev.map(item => ({
           ...item,
           is_downloaded: (statusMap.get(item.manifesto_id) as 0 | 1) || 0,
-        }))
+        })),
       );
     } catch (error) {
-      console.error("[ManifestoDownloader] Load status failed:", error);
+      console.error('[ManifestoDownloader] Load status failed:', error);
     }
   };
 
@@ -73,7 +73,7 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
     try {
       // Simulate JSON data parsing - in real app, item.json_data is the chapter words JSON
       // For demo, we create mock words
-      const mockWords = Array.from({ length: 20 }, (_, i) => ({
+      const mockWords = Array.from({length: 20}, (_, i) => ({
         word_id: item.chapter_id * 1000 + i,
         display_word_id: i + 1,
         chapter_id: item.chapter_id,
@@ -99,24 +99,24 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
       await SQLiteManager.executeSql(
         `INSERT OR REPLACE INTO ManifestoTable (manifesto_id, chapter_id, chapter_name, is_downloaded, downloaded_at)
          VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP);`,
-        [item.manifesto_id, item.chapter_id, item.chapter_name]
+        [item.manifesto_id, item.chapter_id, item.chapter_name],
       );
 
-      setItems((prev) =>
-        prev.map((p) =>
-          p.manifesto_id === item.manifesto_id ? { ...p, is_downloaded: 1 } : p
-        )
+      setItems(prev =>
+        prev.map(p =>
+          p.manifesto_id === item.manifesto_id ? {...p, is_downloaded: 1} : p,
+        ),
       );
       onDownloadComplete?.(item.chapter_id);
       console.log(
-        `[ManifestoDownloader] Downloaded chapter ${item.chapter_id}`
+        `[ManifestoDownloader] Downloaded chapter ${item.chapter_id}`,
       );
     } catch (error) {
       console.error(
         `[ManifestoDownloader] Download failed for ${item.chapter_id}:`,
-        error
+        error,
       );
-      Alert.alert("ডাউনলোড ব্যর্থ", "আবার চেষ্টা করুন");
+      Alert.alert('ডাউনলোড ব্যর্থ', 'আবার চেষ্টা করুন');
     } finally {
       setLoadingId(null);
     }
@@ -124,55 +124,49 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
 
   const handleDelete = useCallback(async (item: ManifestoItem) => {
     Alert.alert(
-      "ডিলিট করুন?",
+      'ডিলিট করুন?',
       `${item.chapter_name} ডিলিট করলে সব প্রোগ্রেস মুছে যাবে`,
       [
-        { text: "বাতিল", style: "cancel" },
+        {text: 'বাতিল', style: 'cancel'},
         {
-          text: "ডিলিট",
-          style: "destructive",
+          text: 'ডিলিট',
+          style: 'destructive',
           onPress: async () => {
             setLoadingId(item.manifesto_id);
             try {
               await WordTable.deleteByChapter(item.chapter_id);
               await SQLiteManager.executeSql(
-                "DELETE FROM ManifestoTable WHERE manifesto_id = ?;",
-                [item.manifesto_id]
+                'DELETE FROM ManifestoTable WHERE manifesto_id = ?;',
+                [item.manifesto_id],
               );
               await SQLiteManager.executeSql(
-                "DELETE FROM ChapterTable WHERE chapter_id = ?;",
-                [item.chapter_id]
+                'DELETE FROM ChapterTable WHERE chapter_id = ?;',
+                [item.chapter_id],
               );
 
-              setItems((prev) =>
-                prev.map((p) =>
+              setItems(prev =>
+                prev.map(p =>
                   p.manifesto_id === item.manifesto_id
-                    ? { ...p, is_downloaded: 0 }
-                    : p
-                )
+                    ? {...p, is_downloaded: 0}
+                    : p,
+                ),
               );
               onDeleteComplete?.(item.chapter_id);
               console.log(
-                `[ManifestoDownloader] Deleted chapter ${item.chapter_id}`
+                `[ManifestoDownloader] Deleted chapter ${item.chapter_id}`,
               );
             } catch (error) {
-              console.error("[ManifestoDownloader] Delete failed:", error);
+              console.error('[ManifestoDownloader] Delete failed:', error);
             } finally {
               setLoadingId(null);
             }
           },
         },
-      ]
+      ],
     );
   }, []);
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: ManifestoItem;
-    index: number;
-  }) => {
+  const renderItem = ({item, index}: {item: ManifestoItem; index: number}) => {
     const isDownloaded = item.is_downloaded === 1;
     const isLoading = loadingId === item.manifesto_id;
 
@@ -200,19 +194,18 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
               onPress={() =>
                 isDownloaded ? handleDelete(item) : handleDownload(item)
               }
-              style={({ pressed }) => [
+              style={({pressed}) => [
                 styles.iconButton,
-                pressed && { opacity: 0.6 },
-              ]}
-            >
+                pressed && {opacity: 0.6},
+              ]}>
               <Icon
                 name={
                   isDownloaded
-                    ? "delete-circle-outline"
-                    : "download-circle-outline"
+                    ? 'delete-circle-outline'
+                    : 'download-circle-outline'
                 }
                 size={24}
-                color={isDownloaded ? "#BA1A1A" : "#6750A4"}
+                color={isDownloaded ? '#BA1A1A' : '#6750A4'}
               />
             </Pressable>
           )}
@@ -233,7 +226,7 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
       <FlatList
         data={items}
         renderItem={renderItem}
-        keyExtractor={(item) => `manifesto-${item.manifesto_id}`}
+        keyExtractor={item => `manifesto-${item.manifesto_id}`}
         scrollEnabled={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
@@ -243,75 +236,75 @@ export const ManifestoDownloader: React.FC<ManifestoDownloaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
     borderWidth: 1,
-    borderColor: "#E7E0EC",
+    borderColor: '#E7E0EC',
   },
   header: {
     marginBottom: 12,
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1B1F",
+    fontWeight: '600',
+    color: '#1C1B1F',
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#49454F",
+    color: '#49454F',
     marginTop: 2,
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 12,
   },
   left: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#E7E0EC",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#E7E0EC',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   serial: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#49454F",
+    fontWeight: '600',
+    color: '#49454F',
   },
   middle: {
     flex: 1,
   },
   chapterName: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#1C1B1F",
+    fontWeight: '500',
+    color: '#1C1B1F',
   },
   chapterId: {
     fontSize: 11,
-    color: "#79747E",
+    color: '#79747E',
     marginTop: 2,
   },
   right: {
     width: 40,
     height: 40,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   separator: {
     height: 1,
-    backgroundColor: "#F3EDF7",
+    backgroundColor: '#F3EDF7',
   },
 });
 

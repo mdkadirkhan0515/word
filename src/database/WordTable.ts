@@ -4,7 +4,7 @@
  * Offline-First, Primary Key is word_id (Internal), display_word_id is User Visible
  */
 
-import SQLiteManager from "./SQLiteManager";
+import SQLiteManager from './SQLiteManager';
 
 export interface WordRow {
   word_id: number; // Internal Primary Key (e.g., 67, 896, 156)
@@ -45,7 +45,7 @@ class WordTableManager {
       return;
     }
 
-    await SQLiteManager.transaction(async (tx) => {
+    await SQLiteManager.transaction(async tx => {
       for (const word of words) {
         const query = `
           INSERT OR REPLACE INTO WordTable 
@@ -70,8 +70,8 @@ class WordTableManager {
    */
   async getWordById(word_id: number): Promise<WordRow | null> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT * FROM WordTable WHERE word_id = ?;",
-      [word_id]
+      'SELECT * FROM WordTable WHERE word_id = ?;',
+      [word_id],
     );
     if (result.rows.length > 0) {
       return result.rows.item(0) as WordRow;
@@ -84,8 +84,8 @@ class WordTableManager {
    */
   async getWordsByChapter(chapter_id: number): Promise<WordRow[]> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT * FROM WordTable WHERE chapter_id = ? ORDER BY display_word_id ASC;",
-      [chapter_id]
+      'SELECT * FROM WordTable WHERE chapter_id = ? ORDER BY display_word_id ASC;',
+      [chapter_id],
     );
     const words: WordRow[] = [];
     for (let i = 0; i < result.rows.length; i++) {
@@ -99,8 +99,8 @@ class WordTableManager {
    */
   async getCompletedCount(chapter_id: number): Promise<number> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT COUNT(*) as count FROM WordTable WHERE chapter_id = ? AND view_id = 1;",
-      [chapter_id]
+      'SELECT COUNT(*) as count FROM WordTable WHERE chapter_id = ? AND view_id = 1;',
+      [chapter_id],
     );
     return result.rows.item(0).count || 0;
   }
@@ -110,8 +110,8 @@ class WordTableManager {
    */
   async getTotalCount(chapter_id: number): Promise<number> {
     const [result] = await SQLiteManager.executeSql(
-      "SELECT COUNT(*) as count FROM WordTable WHERE chapter_id = ?;",
-      [chapter_id]
+      'SELECT COUNT(*) as count FROM WordTable WHERE chapter_id = ?;',
+      [chapter_id],
     );
     return result.rows.item(0).count || 0;
   }
@@ -129,8 +129,8 @@ class WordTableManager {
       }
 
       await SQLiteManager.executeSql(
-        "UPDATE WordTable SET view_id = 1, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;",
-        [word_id]
+        'UPDATE WordTable SET view_id = 1, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;',
+        [word_id],
       );
       console.log(`[WordTable] Word ${word_id} marked view_id=1`);
       return true;
@@ -145,8 +145,8 @@ class WordTableManager {
    */
   async resetWord(word_id: number): Promise<void> {
     await SQLiteManager.executeSql(
-      "UPDATE WordTable SET view_id = 0, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;",
-      [word_id]
+      'UPDATE WordTable SET view_id = 0, updated_at = CURRENT_TIMESTAMP WHERE word_id = ?;',
+      [word_id],
     );
   }
 
@@ -155,21 +155,21 @@ class WordTableManager {
    * Returns: { completed, total, percentage }
    */
   async getChapterProgress(
-    chapter_id: number
-  ): Promise<{ completed: number; total: number; percentage: number }> {
+    chapter_id: number,
+  ): Promise<{completed: number; total: number; percentage: number}> {
     const [result] = await SQLiteManager.executeSql(
       `SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN view_id = 1 THEN 1 ELSE 0 END) as completed
        FROM WordTable WHERE chapter_id = ?;`,
-      [chapter_id]
+      [chapter_id],
     );
     const row = result.rows.item(0);
     const total = row.total || 0;
     const completed = row.completed || 0;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    return { completed, total, percentage };
+    return {completed, total, percentage};
   }
 
   /**
@@ -177,8 +177,8 @@ class WordTableManager {
    */
   async deleteByChapter(chapter_id: number): Promise<void> {
     await SQLiteManager.executeSql(
-      "DELETE FROM WordTable WHERE chapter_id = ?;",
-      [chapter_id]
+      'DELETE FROM WordTable WHERE chapter_id = ?;',
+      [chapter_id],
     );
   }
 }

@@ -7,7 +7,7 @@
  * - Smooth Corners: overflow: 'hidden' for Android
  */
 
-import { ViewStyle } from "react-native";
+import {ViewStyle} from 'react-native';
 
 export const Radius = {
   // Core Radius Scale
@@ -75,7 +75,7 @@ export const CardLayout = {
   // Dynamic Height & Fixed Width Architecture
   width: {
     fixedMargin: 16, // Left/right fixed margin
-    responsive: "100%" as const, // Width = Screen - 2*16
+    responsive: '100%' as const, // Width = Screen - 2*16
   },
 
   height: {
@@ -93,13 +93,13 @@ export const CardLayout = {
   // Shadow
   shadow: {
     default: {
-      offset: { width: 0, height: 2 },
+      offset: {width: 0, height: 2},
       opacity: 0.06,
       radius: 4,
       elevation: 2,
     },
     highlighted: {
-      offset: { width: 0, height: 4 },
+      offset: {width: 0, height: 4},
       opacity: 0.15,
       radius: 8,
       elevation: 6,
@@ -114,18 +114,18 @@ export const CardLayout = {
  */
 export const getCardContainerStyle = (
   isHighlighted: boolean,
-  colors: { surface: string; border: string; primary: string }
+  colors: {surface: string; border: string; primary: string},
 ): ViewStyle => {
   return {
     borderRadius: Radius.card.outer, // 16px
-    overflow: "hidden", // Smooth Corners for Android
+    overflow: 'hidden', // Smooth Corners for Android
     backgroundColor: colors.surface,
     borderWidth: isHighlighted
       ? CardLayout.border.widthHighlighted
       : CardLayout.border.width,
     borderColor: isHighlighted ? colors.primary : colors.border,
     // Visual Depth
-    shadowColor: isHighlighted ? colors.primary : "#000",
+    shadowColor: isHighlighted ? colors.primary : '#000',
     shadowOffset: isHighlighted
       ? CardLayout.shadow.highlighted.offset
       : CardLayout.shadow.default.offset,
@@ -150,7 +150,7 @@ export const getCardContainerStyle = (
  */
 export const getInnerRadius = (
   outerRadius: number = Radius.card.outer,
-  padding: number = Spacing.padding.md
+  padding: number = Spacing.padding.md,
 ): number => {
   return Math.max(Radius.xs, outerRadius - padding / 2); // Minimum 4px
 };
@@ -159,11 +159,11 @@ export const getInnerRadius = (
  * Get Inner Button Style
  */
 export const getInnerButtonStyle = (
-  outerRadius: number = Radius.card.outer
+  outerRadius: number = Radius.card.outer,
 ): ViewStyle => {
   return {
     borderRadius: getInnerRadius(outerRadius, Spacing.padding.md), // 12px
-    overflow: "hidden",
+    overflow: 'hidden',
   } as ViewStyle;
 };
 
